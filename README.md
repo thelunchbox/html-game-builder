@@ -19,7 +19,9 @@ This code block will fire every time the canvas is clicked. The event only has t
 
 ### Update Loop
 
-This code block will fire every 30 ms on a timer.
+This code block will fire every 30 ms on a timer. It includes an object called `keys`, which contains all of the keys that are currently pressed down and which frame they were pressed on.
+
+For example, if `keys.a` === `36` and `frame` === `36`, the `a` key has _just_ been pressed down. If `keys.b` === `30`, it has been held down for `6` frames. If `keys.c` === `-1`, it was _released_ on the current frame, and is no longer held down. It will be automatically removed from the keys object on the next update loop.
 
 ### Draw Loop
 

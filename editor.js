@@ -5,12 +5,11 @@ function editorKeydown(e) {
     editor.value = editor.value.substr(0, start) + '  ' + editor.value.substr(start);
     editor.selectionStart = start + 2;
     editor.selectionEnd = start + 2;
-    e.stopPropagation();
     e.preventDefault();
   }
-  if (e.keyCode === 83 && e.ctrlKey) {
+  if (e.keyCode === 83 && (e.ctrlKey || e.metaKey)) {
     saveRun();
-    e.stopPropagation();
     e.preventDefault();
   }
+  e.stopPropagation();
 }

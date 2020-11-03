@@ -6,6 +6,17 @@ let updateFunction;
 let drawFunction;
 
 let _game = {};
+let _frame = 0;
+let _keys = {};
+
+window.addEventListener('keydown', event => {
+  if (_keys[event.key] === undefined || _keys[event.key] === -1) {
+    _keys[event.key] = _frame;
+  }
+}, false);
+window.addEventListener('keyup', event => {
+  _keys[event.key] = -1;
+}, false);
 
 function download(data, filename, type) {
     var file = new Blob([data], {type: type});
@@ -89,11 +100,12 @@ function getText(key) {
 function saveRun() {
   setupFunction = new Function('game', getText('setup-code'));
   clickFunction = new Function('game', 'event', getText('click-code'));
-  updateFunction = new Function('game', 'frame', getText('update-code'));
+  updateFunction = new Function('game', 'frame', 'keys', getText('update-code'));
   drawFunction = new Function('game', 'context', 'canvas', getText('draw-code'));
 
   _game = {};
   _frame = 0;
+  _keys = {};
   setupFunction(_game);
 }
 
@@ -105,8 +117,16 @@ function setupCanvasClickHandler() {
 }
 
 function update() {
-  if (updateFunction) updateFunction(_game, _frame);
-  _frame++;
+  try {
+    if (updateFunction) updateFunction(_game, _frame, { ..._keys });
+    _frame++;
+    // remove released keys
+    Object.entries(_keys).forEach(([key, value]) => {
+      if (value === -1) {
+        delete _keys[key];
+      }
+    });
+  } catch (ex) {}
   window.setTimeout(update, 30);
 }
 
