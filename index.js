@@ -74,6 +74,7 @@ function finishImport(content) {
 }
 
 function loadImages(array) {
+  if (!array) return;
   _images = array.reduce((agg, { name, src }) => {
     const img = new Image();
     img.src = src;
