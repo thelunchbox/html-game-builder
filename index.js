@@ -15,11 +15,9 @@ window.addEventListener('keydown', event => {
   if (_keys[event.key] === undefined || _keys[event.key] === -1) {
     _keys[event.key] = _frame;
   }
-  event.preventDefault();
 }, false);
 window.addEventListener('keyup', event => {
   _keys[event.key] = -1;
-  event.preventDefault();
 }, false);
 
 function download(data, filename, type) {
