@@ -190,7 +190,7 @@ function saveRun() {
   setupFunction = new Function('game', getText('setup-code'));
   clickFunction = new Function('game', 'event', getText('click-code'));
   updateFunction = new Function('game', 'frame', 'keys', getText('update-code'));
-  drawFunction = new Function('game', 'images', 'context', 'canvas', getText('draw-code'));
+  drawFunction = new Function('game', 'images', 'frame', 'context', 'canvas', getText('draw-code'));
 
   _game = {};
   _frame = 0;
@@ -224,7 +224,7 @@ function draw() {
     const canvas = document.querySelector('canvas');
     const context = canvas.getContext('2d');
     context.clearRect(0, 0, canvas.width, canvas.height);
-    if (drawFunction) drawFunction(_game, _images, context, canvas);
+    if (drawFunction) drawFunction(_game, _images, _frame, context, canvas);
   } catch (ex) {}
 
   window.requestAnimationFrame(draw);
