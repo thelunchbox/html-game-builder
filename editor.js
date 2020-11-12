@@ -7,6 +7,8 @@ const SIBLINGS = {
   '"': '"',
   '`': '`',
 };
+const REVERSE_SIBLINGS = Object.entries(SIBLINGS).reduce((agg, [key, value]) => ({ ...agg, [value]: key }), {});
+const OTHER_PAIRS = Object.values(SIBLINGS);
 
 function editorKeydown(e) {
   const editor = e.target;
@@ -19,7 +21,7 @@ function editorKeydown(e) {
     } else {
       let start = selectionStart;
       let end = selectionEnd;
-      while(value[start] != '\n' && start > 0) {
+      while(value[start-1] != '\n' && start > 0) {
         start--;
       }
       while (value[end] != '\n' && end < value.length) {
@@ -28,9 +30,74 @@ function editorKeydown(e) {
       const before = editor.value.substr(0, start);
       const after = editor.value.substr(end);
       const highlight = editor.value.substr(start, end - start);
-      editor.value = `${before}${highlight.split('\n').map(line => `  ${line}`).join('\n')}${after}`;
-      editor.selectionStart = selectionStart + 2;
-      editor.selectionEnd = selectionEnd + 2 * highlight.split('\n').length;
+      let newStart = selectionStart;
+      let newEnd = selectionEnd;
+      const newText = highlight.split('\n').map((line, i) => {
+        if (e.shiftKey) {
+          if (line.startsWith('  ')) {
+            if (i === 0) newStart -= 2;
+            newEnd -= 2;
+            return line.substr(2);
+          }
+          if (line.startsWith(' ')) {
+            if (i === 0) newStart -= 1;
+            newEnd -= 1;
+            return line.substr(1);
+          }
+          return line;
+        }
+        if (i === 0) newStart += 2;
+        newEnd += 2;
+        return `  ${line}`;
+      }).join('\n');
+      editor.value = `${before}${newText}${after}`;
+      editor.selectionStart = newStart;
+      editor.selectionEnd = newEnd;
+    }
+  }
+  if (e.keyCode === 191 && (e.ctrlKey || e.metaKey)) { // forward slash
+    e.preventDefault();
+    if (selectionStart === selectionEnd) {
+      let start = selectionStart;
+      while(value[start-1] !== '\n' && start > 0) {
+        start--;
+      }
+      const before = editor.value.substr(0, start);
+      const after = editor.value.substr(start);
+      if (after.startsWith('// ')) {
+        editor.value = `${before}${after.substr(3)}`;
+        editor.selectionStart = editor.selectionEnd = selectionStart - 3 < start ? start : selectionStart - 3;
+      } else {
+        editor.value = `${before}// ${after}`;
+        editor.selectionStart = editor.selectionEnd = start;
+      }
+    } else {
+      let start = selectionStart;
+      let end = selectionEnd;
+      while(value[start-1] != '\n' && start > 0) {
+        start--;
+      }
+      while (value[end] != '\n' && end < value.length) {
+        end++;
+      }
+      let newStart = selectionStart;
+      let newEnd = selectionEnd;
+      const before = editor.value.substr(0, start);
+      const after = editor.value.substr(end);
+      const highlight = editor.value.substr(start, end - start);
+      const newText = highlight.split('\n').map((line, i) => {
+        if (line.startsWith('// ')) {
+          if (i === 0) newStart -= 3;
+          newEnd -= 3;
+          return line.substr(3);
+        }
+        if (i === 0) newStart += 3;
+        newEnd += 3;
+        return `// ${line}`;
+      }).join('\n');
+      editor.value = `${before}${newText}${after}`;
+      editor.selectionStart = newStart;
+      editor.selectionEnd = newEnd;
     }
   }
   if (e.keyCode === 83 && (e.ctrlKey || e.metaKey)) {
@@ -45,6 +112,10 @@ function editorKeydown(e) {
     editor.value = `${before}${e.key}${highlight}${SIBLINGS[e.key]}${after}`;
     editor.selectionStart = selectionStart + 1;
     editor.selectionEnd = selectionEnd + 1;
+  }
+  if (OTHER_PAIRS.includes(e.key) && selectionStart === selectionEnd && value[selectionStart - 1] === REVERSE_SIBLINGS[e.key]) {
+    e.preventDefault();
+    editor.selectionStart = editor.selectionEnd = selectionStart + 1;
   }
   if (e.keyCode === 35) { // end
     e.preventDefault();
