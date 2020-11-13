@@ -9,6 +9,7 @@
       color: #fff;
       font-weight: bold;
       font-family: Arial, Helvetica, sans-serif;
+      user-select: none;
     }
 
     #canvas-container {
@@ -31,10 +32,10 @@
     ::-webkit-scrollbar-thumb {
       border-radius: 10px;
       -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
-      background-color:rgba(32, 32, 64, 0.3)
+      background-color: rgba(32, 32, 64, 0.3)
     }
 
-    ::-webkit-resizer  {
+    ::-webkit-resizer {
       background-color: #224;
     }
 
@@ -48,17 +49,21 @@
     }
 
     #code-container textarea {
-      height: 30vh;
+      height: calc(100vh - 100px);
       width: calc(100vw - 830px);
       background-color: #224;
       color: #ffc;
-      outline-color: #f90;
+      outline: none;
+      border: none;
+      padding-left: 5px;
+      user-select: unset;
+      margin-top: 3px;
     }
 
     #code-container span {
       background-color: #224;
       color: #ffc;
-      font-size: 10pt;
+      font-size: 12pt;
       border-radius: 2px;
       font-family: 'Courier New', Courier, monospace;
       padding: 2px;
@@ -95,10 +100,11 @@
     button {
       background: #448;
       color: #f70;
-      padding: 8px 12px;
+      padding: 5px 8px;
       border-color: #224;
       outline: none;
       border-radius: 5px;
+      cursor: pointer;
     }
 
     button:hover {
@@ -109,7 +115,7 @@
       position: absolute;
       z-index: 999;
       background: #77a;
-      box-shadow:rgba(0, 0, 0, 0.3) 3px 3px 10px 10px;
+      box-shadow: rgba(0, 0, 0, 0.3) 3px 3px 10px 10px;
       height: 200px;
       width: 500px;
       top: -250px;
@@ -124,7 +130,7 @@
       top: 0px;
     }
 
-    #image-loader > div {
+    #image-loader>div {
       margin-bottom: 10px;
     }
 
@@ -136,6 +142,27 @@
     #image-loader #url-section.show,
     #image-loader #local-section.show {
       display: block;
+    }
+
+    .tabs {
+      width: 100%;
+      margin-bottom: 5px;
+      display: flex;
+    }
+
+    .tabs>div {
+      margin-right: 2px;
+      cursor: pointer;
+      background-color: #77a;
+      padding: 5px 8px;
+    }
+
+    .tabs>div:hover {
+      background-color: #448;
+    }
+
+    .tabs>div.active {
+      background-color: #224;
     }
   </style>
   <script type="text/javascript" src="./render.js"></script>
@@ -153,32 +180,34 @@
         <button onclick="importGame()">IMPORT</button>
         <button onclick="newGame()">NEW GAME</button>
         <button onclick="loadImage()">LOAD IMAGE</button>
-        <i>v1.3</i>
+        <i>v1.4</i>
       </div>
       <div id="code-blocks">
-        <div>
-          <div class="code-header" onclick="toggle(event, 'setup-code')">
-            Setup (receives <span>game</span>)
-          </div>
+        <div class="tabs">
+          <div id="setup-tab" onclick="showTab(event, 'setup')">Setup</div>
+          <div id="update-tab" onclick="showTab(event, 'update')">Update</div>
+          <div id="draw-tab" onclick="showTab(event, 'draw')">Draw</div>
+          <div id="click-tab" onclick="showTab(event, 'click')">Click Handler</div>
+        </div>
+        <div id="setup-block">
+          <span>function setup(game)</span>
+          <i style="font-size: 11pt; font-weight: 100;">called when your game launches</i>
           <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="setup-code"></textarea>
         </div>
-        <div>
-          <div class="code-header" onclick="toggle(event, 'click-code')">
-            Click Event Handler (receives <span>game</span> and <span>event</span>)
-          </div>
-          <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="click-code"></textarea>
-        </div>
-        <div>
-          <div class="code-header" onclick="toggle(event, 'update-code')">
-            Update Loop (receives <span>game</span>, <span>frame</span>, and <span>keys</span>)
-          </div>
+        <div id="update-block">
+          <span>function update(game, frame, keys)</span>
+          <i style="font-size: 11pt; font-weight: 100;">called every 30ms to run your game</i>
           <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="update-code"></textarea>
         </div>
-        <div>
-          <div class="code-header" onclick="toggle(event, 'draw-code')">
-            Draw Loop (receives <span>game</span>, <span>images</span>, <span>frame</span>, <span>context</span>, and <span>canvas</span>)
-          </div>
+        <div id="draw-block">
+          <span>function draw(game, images, frame, context, canvas)</span>
+          <i style="font-size: 11pt; font-weight: 100;">called when your game needs to render, resets the canvas</i>
           <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="draw-code"></textarea>
+        </div>
+        <div id="click-block">
+          <span>function handleClick(game, event)</span>
+          <i style="font-size: 11pt; font-weight: 100;">called whenever the canvas is clicked</i>
+          <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="click-code"></textarea>
         </div>
       </div>
       <div id="image-loader">
@@ -199,7 +228,7 @@
         </div>
         <div id="local-section">
           Image Filepath
-          <input id="image-filepath" type="file" onchange="readImageFile(event)"/>
+          <input id="image-filepath" type="file" onchange="readImageFile(event)" />
         </div>
         <div>
           <button onclick="doLoadImage()">OK</button>
@@ -220,6 +249,9 @@
     restoreText('update-code');
     restoreText('draw-code');
     restoreImages();
+
+    const loadedTab = window.localStorage.getItem('selected-tab') || 'setup';
+    showTab({ target: document.getElementById(`${loadedTab}-tab`) }, loadedTab);
     saveRun();
   </script>
 </body>

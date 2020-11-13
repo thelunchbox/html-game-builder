@@ -165,9 +165,18 @@ function cancelLoadImage() {
   document.getElementById('image-loader').classList.remove('show');
 }
 
-function toggle(event, key) {
-  event.target.classList.toggle('hidden');
-  document.getElementById(key).classList.toggle('hide');
+const TABS = ['setup', 'update', 'draw', 'click'];
+
+function showTab(event, key) {
+  const tab = event.target;
+  const parent = tab.parentElement;
+  const children = Array.from(parent.children);
+  children.forEach(c => c.classList.remove('active'));
+  tab.classList.add('active');
+  TABS.forEach(TAB => {
+    document.getElementById(`${TAB}-block`).style.display = TAB === key ? 'block' : 'none';
+  });
+  window.localStorage.setItem('selected-tab', key);
 }
 
 function restoreText(key) {
