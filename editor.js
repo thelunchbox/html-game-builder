@@ -167,16 +167,13 @@ function editorKeydown(e) {
       start--;
     }
     let end = selectionEnd;
-    while(value[end] !== '\n' && end < value.length) {
-      end++;
-    }
+    // while(value[end] !== '\n' && end < value.length) {
+    //   end++;
+    // }
     const currentLine = value.substr(start, end);
     let spaces = 0;
     while (currentLine[spaces] === ' ') {
       spaces++;
-    }
-    if (PAIRS.includes(currentLine[currentLine.length - 1])) {
-      spaces += 2;
     }
     const prev = value[selectionStart - 1];
     const next = value[selectionStart];
