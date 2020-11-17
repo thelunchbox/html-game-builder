@@ -10,6 +10,20 @@ const SIBLINGS = {
 const REVERSE_SIBLINGS = Object.entries(SIBLINGS).reduce((agg, [key, value]) => ({ ...agg, [value]: key }), {});
 const OTHER_PAIRS = Object.values(SIBLINGS);
 
+const editors = {};
+
+window.addEventListener('load', () => {
+  const textAreas = Array.from(document.querySelectorAll('textarea'));
+  console.log(textAreas);
+  textAreas.forEach(element => {
+    // element.style.opacity = 0;
+    console.log(element.offsetHeight, element.offsetWidth);
+    const width = element.screenWidth;
+    const height = element.screenHeight;
+    document.createElement('div');
+  });
+});
+
 function editorKeydown(e) {
   const editor = e.target;
   const { value, selectionStart, selectionEnd } = editor;
