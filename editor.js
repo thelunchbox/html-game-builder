@@ -113,6 +113,7 @@ function editorKeydown(e) {
     editor.selectionStart = selectionStart + 1;
     editor.selectionEnd = selectionEnd + 1;
   }
+  // if the key I just typed is a back half
   if (OTHER_PAIRS.includes(e.key) && selectionStart === selectionEnd && value[selectionStart - 1] === REVERSE_SIBLINGS[e.key]) {
     e.preventDefault();
     editor.selectionStart = editor.selectionEnd = selectionStart + 1;
