@@ -1,11 +1,9 @@
-const PAIRS = ['(', '[', '{', '\'', '"', '`'];
+const PAIRS = ['(', '[', '{'];
+const SELF_PAIRS = ['\'', '"', '`'];
 const SIBLINGS = {
   '(': ')',
   '[': ']',
   '{': '}',
-  '\'': '\'',
-  '"': '"',
-  '`': '`',
 };
 const REVERSE_SIBLINGS = Object.entries(SIBLINGS).reduce((agg, [key, value]) => ({ ...agg, [value]: key }), {});
 const OTHER_PAIRS = Object.values(SIBLINGS);
@@ -104,7 +102,29 @@ function editorKeydown(e) {
     saveRun();
     e.preventDefault();
   }
-  if (PAIRS.includes(e.key)) {
+  if (SELF_PAIRS.includes(e.key)) {
+    e.preventDefault();
+    let start = selectionStart;
+    let occurences = 0;
+    while(value[start-1] !== '\n' && start > 0) {
+      if (value[start] === e.key) occurences++;
+      start--;
+    }
+    if (occurences % 2 !== 0) {
+      editor.selectionStart = editor.selectionEnd = selectionStart + 1;
+    } else {
+      const before = editor.value.substr(0, selectionStart);
+      const after = editor.value.substr(selectionEnd);
+      const highlight = editor.value.substr(selectionStart, selectionEnd - selectionStart);
+      editor.value = `${before}${e.key}${highlight}${e.key}${after}`;
+      editor.selectionStart = selectionStart + 1;
+      editor.selectionEnd = selectionEnd + 1;
+    }
+  }
+  if (OTHER_PAIRS.includes(e.key) && selectionStart === selectionEnd) {
+    e.preventDefault();
+    editor.selectionStart = editor.selectionEnd = selectionStart + 1;
+  } else if (PAIRS.includes(e.key)) {
     e.preventDefault();
     const before = editor.value.substr(0, selectionStart);
     const after = editor.value.substr(selectionEnd);
@@ -112,11 +132,6 @@ function editorKeydown(e) {
     editor.value = `${before}${e.key}${highlight}${SIBLINGS[e.key]}${after}`;
     editor.selectionStart = selectionStart + 1;
     editor.selectionEnd = selectionEnd + 1;
-  }
-  // if the key I just typed is a back half
-  if (OTHER_PAIRS.includes(e.key) && selectionStart === selectionEnd && value[selectionStart - 1] === REVERSE_SIBLINGS[e.key]) {
-    e.preventDefault();
-    editor.selectionStart = editor.selectionEnd = selectionStart + 1;
   }
   if (e.keyCode === 35) { // end
     e.preventDefault();
@@ -163,10 +178,16 @@ function editorKeydown(e) {
     if (PAIRS.includes(currentLine[currentLine.length - 1])) {
       spaces += 2;
     }
+    const prev = value[selectionStart - 1];
+    const next = value[selectionStart];
+    const wrapped = PAIRS.includes(prev) && SIBLINGS[prev] === next;
+    if (wrapped) spaces += 2;
+
     const space = new Array(spaces).fill(' ').join('');
+    const extra = wrapped ? `\n${space.substr(2)}` : '';
     const before = editor.value.substr(0, selectionStart);
     const after = editor.value.substr(selectionEnd);
-    editor.value = `${before}\n${space}${after}`;
+    editor.value = `${before}\n${space}${extra}${after}`;
     editor.selectionStart = editor.selectionEnd = selectionStart + 1 + spaces;
   }
   e.stopPropagation();
