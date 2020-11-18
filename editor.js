@@ -5,12 +5,19 @@ const SIBLINGS = {
   '[': ']',
   '{': '}',
 };
-const REVERSE_SIBLINGS = Object.entries(SIBLINGS).reduce((agg, [key, value]) => ({ ...agg, [value]: key }), {});
+const REVERSE_SIBLINGS = Object.entries(SIBLINGS).reduce((agg, [key, value]) => ({
+  ...agg,
+  [value]: key
+}), {});
 const OTHER_PAIRS = Object.values(SIBLINGS);
 
 function editorKeydown(e) {
   const editor = e.target;
-  const { value, selectionStart, selectionEnd } = editor;
+  const {
+    value,
+    selectionStart,
+    selectionEnd
+  } = editor;
   if (e.keyCode === 9) {
     e.preventDefault();
     if (selectionStart === selectionEnd) {
@@ -19,7 +26,7 @@ function editorKeydown(e) {
     } else {
       let start = selectionStart;
       let end = selectionEnd;
-      while(value[start-1] != '\n' && start > 0) {
+      while (value[start - 1] != '\n' && start > 0) {
         start--;
       }
       while (value[end] != '\n' && end < value.length) {
@@ -57,7 +64,7 @@ function editorKeydown(e) {
     e.preventDefault();
     if (selectionStart === selectionEnd) {
       let start = selectionStart;
-      while(value[start-1] !== '\n' && start > 0) {
+      while (value[start - 1] !== '\n' && start > 0) {
         start--;
       }
       const before = editor.value.substr(0, start);
@@ -72,7 +79,7 @@ function editorKeydown(e) {
     } else {
       let start = selectionStart;
       let end = selectionEnd;
-      while(value[start-1] != '\n' && start > 0) {
+      while (value[start - 1] != '\n' && start > 0) {
         start--;
       }
       while (value[end] != '\n' && end < value.length) {
@@ -106,17 +113,19 @@ function editorKeydown(e) {
     e.preventDefault();
     let start = selectionStart;
     let occurences = 0;
-    while(value[start-1] !== '\n' && start > 0) {
+    while (value[start - 1] !== '\n' && start > 0) {
       if (value[start] === e.key) occurences++;
       start--;
     }
-    if (occurences % 2 !== 0) {
+    if (occurences % 2 !== 0 && value[selectionStart] === e.key) {
       editor.selectionStart = editor.selectionEnd = selectionStart + 1;
     } else {
       const before = editor.value.substr(0, selectionStart);
       const after = editor.value.substr(selectionEnd);
+      const lastChar = before[before.length - 1];
       const highlight = editor.value.substr(selectionStart, selectionEnd - selectionStart);
-      editor.value = `${before}${e.key}${highlight}${e.key}${after}`;
+      const match = highlight || [ ...PAIRS, ' '].includes(lastChar);
+      editor.value = `${before}${e.key}${highlight}${match ? e.key : ''}${after}`;
       editor.selectionStart = selectionStart + 1;
       editor.selectionEnd = selectionEnd + 1;
     }
@@ -136,7 +145,7 @@ function editorKeydown(e) {
   if (e.keyCode === 35) { // end
     e.preventDefault();
     let cursor = selectionEnd;
-    while(value[cursor] !== '\n' && cursor < value.length) {
+    while (value[cursor] !== '\n' && cursor < value.length) {
       cursor++;
     }
     editor.selectionStart = editor.selectionEnd = cursor;
@@ -144,14 +153,14 @@ function editorKeydown(e) {
   if (e.keyCode === 36) { // home
     e.preventDefault();
     let cursor = selectionStart;
-    while(value[cursor-1] !== '\n' && cursor > 0) {
+    while (value[cursor - 1] !== '\n' && cursor > 0) {
       cursor--;
     }
     editor.selectionStart = editor.selectionEnd = cursor;
   }
-  if (e.keyCode === 8 && 
-    selectionStart === selectionEnd && 
-    PAIRS.includes(value[selectionStart-1]) && 
+  if (e.keyCode === 8 &&
+    selectionStart === selectionEnd &&
+    PAIRS.includes(value[selectionStart - 1]) &&
     value[selectionStart] === SIBLINGS[value[selectionStart - 1]]
   ) {
     e.preventDefault();
@@ -163,7 +172,7 @@ function editorKeydown(e) {
   if (e.keyCode === 13 && selectionStart === selectionEnd) {
     e.preventDefault();
     let start = selectionStart;
-    while(value[start-1] !== '\n' && start > 0) {
+    while (value[start - 1] !== '\n' && start > 0) {
       start--;
     }
     let end = selectionEnd;
