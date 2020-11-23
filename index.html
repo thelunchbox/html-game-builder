@@ -134,16 +134,6 @@
       margin-bottom: 10px;
     }
 
-    #image-loader #url-section,
-    #image-loader #local-section {
-      display: none;
-    }
-
-    #image-loader #url-section.show,
-    #image-loader #local-section.show {
-      display: block;
-    }
-
     .tabs {
       width: 100%;
       margin-bottom: 5px;
@@ -164,6 +154,10 @@
     .tabs>div.active {
       background-color: #224;
     }
+
+    ul > li {
+      margin-bottom: 10px;
+    }
   </style>
   <script type="text/javascript" src="./render.js"></script>
   <script type="text/javascript" src="./editor.js"></script>
@@ -180,7 +174,7 @@
         <button onclick="importGame()">IMPORT</button>
         <button onclick="newGame()">NEW GAME</button>
         <button onclick="loadImage()">LOAD IMAGE</button>
-        <i>v1.5.1</i>
+        <i>v1.6.0</i>
       </div>
       <div id="code-blocks">
         <div class="tabs">
@@ -188,6 +182,7 @@
           <div id="update-tab" onclick="showTab(event, 'update')">Update</div>
           <div id="draw-tab" onclick="showTab(event, 'draw')">Draw</div>
           <div id="click-tab" onclick="showTab(event, 'click')">Click Handler</div>
+          <div id="helpers-tab" onclick="showTab(event, 'helpers')">Helper Functions</div>
         </div>
         <div id="setup-block">
           <span>function setup(game)</span>
@@ -209,22 +204,25 @@
           <i style="font-size: 11pt; font-weight: 100;">called whenever the canvas is clicked</i>
           <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="click-code"></textarea>
         </div>
+        <div id="helpers-block">
+          <h3>Helper Functions</h3>
+          <ul>
+            <li>
+              <span>addImage(url)</span>
+              <i style="font-size: 11pt; font-weight: 100;">Load an image from a url, returns the image object</i>
+            </li>
+            <li>
+              <span>addAudio(url)</span>
+              <i style="font-size: 11pt; font-weight: 100;">Load a sound from a url, returns the audio object</i>
+            </li>
+          </ul>
+        </div>
       </div>
       <div id="image-loader">
         <h3>Load Image</h3>
         <div>
           Image Name
           <input id="image-name" />
-        </div>
-        <div>
-          <input type="radio" name="location" id="url" value="url" onchange="toggleImageType(event)" />
-          <label for="url">Online Image</label>
-          <input type="radio" name="location" id="local" value="local" onchange="toggleImageType(event)" />
-          <label for="local">Local Image</label>
-        </div>
-        <div id="url-section">
-          Image URL
-          <input id="image-url" />
         </div>
         <div id="local-section">
           Image Filepath
@@ -251,7 +249,9 @@
     restoreImages();
 
     const loadedTab = window.localStorage.getItem('selected-tab') || 'setup';
-    showTab({ target: document.getElementById(`${loadedTab}-tab`) }, loadedTab);
+    showTab({
+      target: document.getElementById(`${loadedTab}-tab`)
+    }, loadedTab);
     saveRun();
   </script>
 </body>

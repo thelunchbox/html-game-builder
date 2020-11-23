@@ -120,13 +120,6 @@ function loadImage() {
   document.getElementById('image-loader').classList.add('show');
 }
 
-function toggleImageType(e) {
-  const which = e.target.value;
-  document.getElementById('url-section').classList.remove('show');
-  document.getElementById('local-section').classList.remove('show');
-  document.getElementById(`${which}-section`).classList.add('show');
-}
-
 let currentImage;
 
 function readImageFile(e) {
@@ -144,10 +137,8 @@ function readImageFile(e) {
 
 function doLoadImage() {
   const name = document.getElementById('image-name').value;
-  const url = document.getElementById('image-url').value;
-  console.log(currentImage);
 
-  const src = currentImage || url;
+  const src = currentImage;
   const img = new Image();
   img.src = src;
   img.onload = () => {
@@ -160,7 +151,6 @@ function doLoadImage() {
 function cancelLoadImage() {
   document.getElementById('image-name').value = null;
   document.getElementById('image-filepath').value = null;
-  document.getElementById('image-url').value = null;
   currentImage = null;
   document.getElementById('image-loader').classList.remove('show');
 }
@@ -193,6 +183,18 @@ function getText(key) {
   const text = document.getElementById(key).value;
   window.localStorage.setItem(key, text);
   return text;
+}
+
+function addImage(src) {
+  const img = new Image();
+  img.src = src;
+  return img;
+}
+
+function addSound(src) {
+  const aud = new Audio();
+  aud.src = src;
+  return aud;
 }
 
 function saveRun() {

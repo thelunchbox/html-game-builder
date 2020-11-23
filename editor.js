@@ -131,8 +131,19 @@ function editorKeydown(e) {
     }
   }
   if (OTHER_PAIRS.includes(e.key) && selectionStart === selectionEnd) {
-    e.preventDefault();
-    editor.selectionStart = editor.selectionEnd = selectionStart + 1;
+    let start = selectionStart;
+    let open = false;
+    while (value[start - 1] !== '\n' && start > 0) {
+      if (value[start] === REVERSE_SIBLINGS[e.key]) {
+        open = true;
+        break;
+      }
+      start--;
+    }
+    if (open && value[selectionStart] === e.key) {
+      e.preventDefault();
+      editor.selectionStart = editor.selectionEnd = selectionStart + 1;
+    }
   } else if (PAIRS.includes(e.key)) {
     e.preventDefault();
     const before = editor.value.substr(0, selectionStart);
