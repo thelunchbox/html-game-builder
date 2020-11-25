@@ -14,7 +14,7 @@
     }
 
     #canvas-container {
-      background-color: #224;
+      background-color: #222;
       width: 800px;
       position: relative;
       left: 0;
@@ -59,7 +59,6 @@
       border: none;
       padding-left: 5px;
       user-select: unset;
-      margin-top: 3px;
       resize: none;
     }
 
@@ -78,15 +77,6 @@
       padding-right: 6px;
     }
 
-    .code-header {
-      cursor: pointer;
-      margin-top: 5px;
-    }
-
-    .code-header:hover {
-      color: #f90;
-    }
-
     .hidden {
       border-bottom: solid 2px #224;
       margin-bottom: 10px;
@@ -102,7 +92,7 @@
 
     button {
       background: #448;
-      color: #f70;
+      color: #fc0;
       padding: 5px 8px;
       border-color: #224;
       outline: none;
@@ -139,15 +129,14 @@
 
     .tabs {
       width: 100%;
-      margin-bottom: 5px;
       display: flex;
     }
 
     .tabs>div {
-      margin-right: 2px;
       cursor: pointer;
       background-color: #77a;
       padding: 5px 8px;
+      font-weight: 100;
     }
 
     .tabs>div:hover {
@@ -183,12 +172,13 @@
     }
 
     #code-toggle:hover {
-      background-color: #448;
       opacity: 1;
+      color: #fc0;
     }
   </style>
   <script type="text/javascript" src="./render.js"></script>
   <script type="text/javascript" src="./editor.js"></script>
+  <script type="text/javascript" src="./manager.js"></script>
   <script type="text/javascript" src="./index.js"></script>
 </head>
 
@@ -206,36 +196,29 @@
         <i>v1.7.0</i>
       </div>
       <div id="code-blocks">
-        <div class="tabs">
-          <div id="setup-tab" onclick="showTab(event, 'setup')">Setup</div>
-          <div id="update-tab" onclick="showTab(event, 'update')">Update</div>
-          <div id="draw-tab" onclick="showTab(event, 'draw')">Draw</div>
-          <div id="click-tab" onclick="showTab(event, 'click')">Click Handler</div>
-          <div id="helpers-tab" onclick="showTab(event, 'helpers')">Helper Functions</div>
-        </div>
+        <div class="tabs"></div>
         <div id="setup-block">
-          <span>function setup(game)</span>
-          <i style="font-size: 11pt; font-weight: 100;">called when your game launches</i>
-          <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="setup-code"></textarea>
-        </div>
-        <div id="update-block">
-          <span>function update(game, frame, keys)</span>
-          <i style="font-size: 11pt; font-weight: 100;">called every 30ms to run your game</i>
-          <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="update-code"></textarea>
-        </div>
-        <div id="draw-block">
-          <span>function draw(game, images, frame, context, canvas)</span>
-          <i style="font-size: 11pt; font-weight: 100;">called when your game needs to render, resets the canvas</i>
-          <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="draw-code"></textarea>
-        </div>
-        <div id="click-block">
-          <span>function handleClick(game, event)</span>
-          <i style="font-size: 11pt; font-weight: 100;">called whenever the canvas is clicked</i>
-          <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="click-code"></textarea>
+          <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="code-editor"></textarea>
         </div>
         <div id="helpers-block">
-          <h3>Helper Functions</h3>
+          <h3>Docs</h3>
           <ul>
+            <li>
+              <span>function setup(game)</span>
+              <i style="font-size: 11pt; font-weight: 100;">called when your game launches</i>
+            </li>
+            <li>
+              <span>function update(game, frame, keys)</span>
+              <i style="font-size: 11pt; font-weight: 100;">called every 30ms to run your game</i>
+            </li>
+            <li>
+              <span>function draw(game, images, frame, context, canvas)</span>
+              <i style="font-size: 11pt; font-weight: 100;">called when your game needs to render, resets the canvas</i>
+            </li>
+            <li>
+              <span>function handleClick(game, event)</span>
+              <i style="font-size: 11pt; font-weight: 100;">called whenever the canvas is clicked</i>
+            </li>
             <li>
               <span>addImage(url)</span>
               <i style="font-size: 11pt; font-weight: 100;">Load an image from a url, returns the image object</i>
@@ -270,17 +253,8 @@
       height: 900
     });
     setupCanvasClickHandler();
-
-    restoreText('setup-code');
-    restoreText('click-code');
-    restoreText('update-code');
-    restoreText('draw-code');
     restoreImages();
-
-    const loadedTab = window.localStorage.getItem('selected-tab') || 'setup';
-    showTab({
-      target: document.getElementById(`${loadedTab}-tab`)
-    }, loadedTab);
+    initializeTabs();
     saveRun();
   </script>
 </body>
