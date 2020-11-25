@@ -34,10 +34,8 @@ function addSound(src) {
 
 function saveRun() {
   // make sure current tab is saved
-  const codeEditor = document.querySelector('#code-editor');
-  const currentSelectedTab = openTabs.find(t => t.active);
-  window.localStorage.setItem(`${currentSelectedTab.name}-code`, codeEditor.value);
-
+  saveCurrentTab();
+  
   // run all NON-required code first
   // how do we run it in the same context and remove other code...
 

@@ -1,8 +1,22 @@
 let LOCKED_FILES = ['setup', 'update', 'draw', 'click'];
+
+function getTabState() {
+  return JSON.parse(window.localStorage.getItem('tab-state'));
+}
+
+function getAllFiles() {
+  return JSON.parse(window.localStorage.getItem('all-files'));
+}
+
+function saveCurrentTab() {
+  const codeEditor = document.querySelector('#code-editor');
+  const currentSelectedTab = openTabs.find(t => t.active);
+  window.localStorage.setItem(`${currentSelectedTab.name}-code`, codeEditor.value);
+}
+
 let allFiles = getAllFiles() || [...LOCKED_FILES];
 let openTabs = getTabState() || LOCKED_FILES.map((name, i) => ({
   name,
-  selection: [0, 0],
   active: i === 0,
 }));
 
@@ -51,7 +65,6 @@ function finishImport(content) {
   allFiles = [];
   openTabs = LOCKED_FILES.map((name, i) => ({
     name,
-    selection: [0, 0],
     active: i === 0,
   }));
   Object.entries(json).forEach(([key, value]) => {
@@ -63,6 +76,7 @@ function finishImport(content) {
     }
   });
   const newlySelectedTab = openTabs[0];
+  const codeEditor = document.querySelector('#code-editor');
   codeEditor.value = window.localStorage.getItem(`${newlySelectedTab.name}-code`) || '';
   saveRun();
   filePicker = null;
@@ -87,13 +101,14 @@ function getImages() {
 
 function exportGame() {
   // THIS IS NOT WORKING...
+  saveCurrentTab();
   const filename = prompt('name your file', 'game');
   if (!filename) return;
   const content = {
     ...allFiles.reduce((res, file) => ({
       ...res,
       [`${file}-code`]: window.localStorage.getItem(`${file}-code`),
-    }, {})),
+    }), {}),
     '_images': getImages(),
   };
 
@@ -110,7 +125,6 @@ function newGame() {
     allFiles = [...LOCKED_FILES];
     openTabs = LOCKED_FILES.map((name, i) => ({
       name,
-      selection: [0, 0],
       active: i === 0,
     }));
     
@@ -159,43 +173,24 @@ function cancelLoadImage() {
 
 let showCode = true;
 
-function animateResizeCanvas(ms, last) {
-  const start = new Date().getTime();
-  window.setTimeout(() => {
-    resizeCanvas && resizeCanvas();
-    const end = new Date().getTime();
-    const diff = end - start;
-    const remaining = ms - diff;
-    if (remaining > 0) animateResizeCanvas(remaining);
-    if (remaining <= 0 && !last) animateResizeCanvas(0, last);
-  }, 10);
-}
-
 function toggleCode(override) {
   if (override !== undefined) showCode = override;
   else showCode = !showCode;
   const canvasContainer = document.querySelector('#canvas-container');
+  const codeContainer = document.querySelector('#code-container');
   const codeToggle = document.querySelector('#code-toggle');
   if (showCode) {
     canvasContainer.style.width = 800;
+    codeContainer.style.width = window.innerWidth - 800;
     codeToggle.classList.remove('closed');
     codeToggle.innerHTML = '&#9654;';
   } else {
     canvasContainer.style.width = window.innerWidth;
+    codeContainer.style.width = 0;
     codeToggle.classList.add('closed');
     codeToggle.innerHTML = '&#9664;';
   }
-  animateResizeCanvas(250);
 }
-
-function getTabState() {
-  return JSON.parse(window.localStorage.getItem('tab-state'));
-}
-
-function getAllFiles() {
-  return JSON.parse(window.localStorage.getItem('all-files'));
-}
-
 
 function initializeTabs() {
   const tabContainer = document.querySelector('.tabs');
@@ -206,6 +201,9 @@ function initializeTabs() {
     if (tab.active) el.classList.add('active');
     tabContainer.appendChild(el);
   });
+  const selectedTab = openTabs.find(t => t.active);
+  const codeEditor = document.querySelector('#code-editor');
+  codeEditor.value = window.localStorage.getItem(`${selectedTab.name}-code`) || '';
 }
 
 function showTab(event, key) {
@@ -225,7 +223,8 @@ function showTab(event, key) {
 
   newlySelectedTab.active = true;
   codeEditor.value = window.localStorage.getItem(`${newlySelectedTab.name}-code`) || '';
-  [codeEditor.selectionStart, codeEditor.selectionEnd] = newlySelectedTab.selection;
+  if (newlySelectedTab.selection)
+    [codeEditor.selectionStart, codeEditor.selectionEnd] = newlySelectedTab.selection;
   codeEditor.focus();
 }
 
