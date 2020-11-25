@@ -155,7 +155,38 @@ function cancelLoadImage() {
   document.getElementById('image-loader').classList.remove('show');
 }
 
-const TABS = ['setup', 'update', 'draw', 'click'];
+let showCode = true;
+
+function animateResizeCanvas(ms, last) {
+  const start = new Date().getTime();
+  window.setTimeout(() => {
+    resizeCanvas && resizeCanvas();
+    const end = new Date().getTime();
+    const diff = end - start;
+    const remaining = ms - diff;
+    if (remaining > 0) animateResizeCanvas(remaining);
+    if (remaining <= 0 && !last) animateResizeCanvas(0, last);
+  }, 10);
+}
+
+function toggleCode(override) {
+  if (override !== undefined) showCode = override;
+  else showCode = !showCode;
+  const canvasContainer = document.querySelector('#canvas-container');
+  const codeToggle = document.querySelector('#code-toggle');
+  if (showCode) {
+    canvasContainer.style.width = 800;
+    codeToggle.classList.remove('closed');
+    codeToggle.innerHTML = '&#9654;';
+  } else {
+    canvasContainer.style.width = window.innerWidth;
+    codeToggle.classList.add('closed');
+    codeToggle.innerHTML = '&#9664;';
+  }
+  animateResizeCanvas(250);
+}
+
+const TABS = ['setup', 'update', 'draw', 'click','helpers'];
 
 function showTab(event, key) {
   const tab = event.target;
