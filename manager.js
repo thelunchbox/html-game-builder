@@ -4,8 +4,16 @@ function getTabState() {
   return JSON.parse(window.localStorage.getItem('tab-state'));
 }
 
+function setTabState(tabs) {
+  window.localStorage.setItem('tab-state', JSON.stringify(tabs));
+}
+
 function getAllFiles() {
   return JSON.parse(window.localStorage.getItem('all-files'));
+}
+
+function setAllFiles(files) {
+  window.localStorage.setItem('all-files', JSON.stringify(files));
 }
 
 function saveCurrentTab() {
@@ -19,6 +27,9 @@ let openTabs = getTabState() || LOCKED_FILES.map((name, i) => ({
   name,
   active: i === 0,
 }));
+
+setTabState(openTabs);
+setAllFiles(allFiles);
 
 function download(data, filename, type) {
   var file = new Blob([data], { type: type });
@@ -127,7 +138,9 @@ function newGame() {
       name,
       active: i === 0,
     }));
-    
+
+    window.localStorage.clear();    
+    initializeTabs();
     document.querySelector('#code-editor').value = '';
   }
 }
@@ -192,15 +205,18 @@ function toggleCode(override) {
   }
 }
 
+function createTab(tab, container) {
+  const el = document.createElement('div');
+  el.addEventListener('click', (event) => showTab(event, tab.name));
+  el.innerText = `${tab.name}.js`;
+  if (tab.active) el.classList.add('active');
+  container.appendChild(el);
+}
+
 function initializeTabs() {
   const tabContainer = document.querySelector('.tabs');
-  openTabs.forEach(tab => {
-    const el = document.createElement('div');
-    el.addEventListener('click', (event) => showTab(event, tab.name));
-    el.innerText = `${tab.name}.js`;
-    if (tab.active) el.classList.add('active');
-    tabContainer.appendChild(el);
-  });
+  tabContainer.innerHTML = '';
+  openTabs.forEach(tab => createTab(tab, tabContainer));
   const selectedTab = openTabs.find(t => t.active);
   const codeEditor = document.querySelector('#code-editor');
   codeEditor.value = window.localStorage.getItem(`${selectedTab.name}-code`) || '';
@@ -215,16 +231,31 @@ function showTab(event, key) {
 
   const codeEditor = document.querySelector('#code-editor');
   const currentSelectedTab = openTabs.find(t => t.active);
-  const newlySelectedTab = openTabs.find(t => t.name === key);
+  let targetTab = openTabs.find(t => t.name === key);
+
+  if (event.offsetX > tab.offsetWidth - 20) {
+    const tabIndex = openTabs.indexOf(targetTab);
+    if (targetTab === currentSelectedTab) {
+      let newIndex = tabIndex;
+      if (tabIndex === openTabs.length - 1) newIndex -= 1;
+      openTabs.splice(tabIndex, 1);
+      targetTab = openTabs[newIndex];
+      children[newIndex].classList.add('active');
+    } else {
+      openTabs.splice(tabIndex, 1);
+    }
+    parent.removeChild(tab);
+    setTabState(openTabs);
+  }
 
   window.localStorage.setItem(`${currentSelectedTab.name}-code`, codeEditor.value);
   currentSelectedTab.active = false;
   currentSelectedTab.selection = [codeEditor.selectionStart, codeEditor.selectionEnd];
 
-  newlySelectedTab.active = true;
-  codeEditor.value = window.localStorage.getItem(`${newlySelectedTab.name}-code`) || '';
-  if (newlySelectedTab.selection)
-    [codeEditor.selectionStart, codeEditor.selectionEnd] = newlySelectedTab.selection;
+  targetTab.active = true;
+  codeEditor.value = window.localStorage.getItem(`${targetTab.name}-code`) || '';
+  if (targetTab.selection)
+    [codeEditor.selectionStart, codeEditor.selectionEnd] = targetTab.selection;
   codeEditor.focus();
 }
 

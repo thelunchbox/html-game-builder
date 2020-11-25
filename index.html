@@ -137,18 +137,39 @@
       display: flex;
     }
 
-    .tabs>div {
+    .tabs > div {
       cursor: pointer;
       background-color: #77a;
       padding: 5px 8px;
       font-weight: 100;
+      position: relative;
     }
 
-    .tabs>div:hover {
+    .tabs > div::after {
+      content: '\00d7';
+      display: none;
+      position: absolute;
+      top: 0;
+      right: 0;
+      background-color: #448;
+      color: white;
+      height: 100%;
+      width: 18px;
+      padding-left: 5px;
+      font-weight: 100;
+      font-size: 20pt;
+    }
+
+    .tabs > div:hover::after {
+      display: block;
+    }
+
+    .tabs > div:hover {
       background-color: #448;
     }
 
-    .tabs>div.active {
+    .tabs > div.active,
+    .tabs > div.active::after {
       background-color: #224;
     }
 
@@ -200,7 +221,7 @@
         <button onclick="importGame()">IMPORT</button>
         <button onclick="newGame()">CLEAR ALL</button>
         <button onclick="loadImage()">LOAD IMAGE</button>
-        <i>v1.7.0</i>
+        <i style="font-size: 8pt; font-weight: 100;">v2.0.0</i>
       </div>
       <div id="code-blocks">
         <div class="tabs"></div>
