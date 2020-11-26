@@ -186,6 +186,15 @@ function cancelLoadImage() {
   document.getElementById('image-loader').classList.remove('show');
 }
 
+function showDocs(show) {
+  const docs = document.querySelector('#docs-panel');
+  if (show) {
+    docs.classList.add('show');
+  } else {
+    docs.classList.remove('show');
+  }
+}
+
 let showCode = true;
 
 function toggleCode(override) {
@@ -214,11 +223,15 @@ function toggleFiles(override) {
   if (override !== undefined) showFiles = override;
   else showFiles = !showFiles;
   const filesBlock = document.querySelector('#files-block');
+  const fileToggle = document.querySelector('#file-toggle');
   if (showFiles) {
     filesBlock.classList.add('show');
+    fileToggle.innerHTML = '&laquo;';
   } else {
     filesBlock.classList.remove('show');
+    fileToggle.innerHTML = '&raquo;';
   }
+  window.localStorage.setItem('show-files', JSON.stringify(showFiles));
 }
 
 function createTab(tab, container) {

@@ -76,8 +76,9 @@
       padding: 2px;
     }
 
-    #code-blocks {
-      height: calc(100vh - 46px);
+    #code-block {
+      height: 100%;
+      width: 100%;
       overflow-y: auto;
       padding-right: 6px;
     }
@@ -137,7 +138,7 @@
       display: flex;
     }
 
-    .tabs > div {
+    .tabs>div {
       cursor: pointer;
       background-color: #77a;
       padding: 5px 8px;
@@ -145,7 +146,7 @@
       position: relative;
     }
 
-    .tabs > div::after {
+    .tabs>div::after {
       content: '\00d7';
       display: none;
       position: absolute;
@@ -160,20 +161,20 @@
       font-size: 20pt;
     }
 
-    .tabs > div:hover::after {
+    .tabs>div:hover::after {
       display: block;
     }
 
-    .tabs > div:hover {
+    .tabs>div:hover {
       background-color: #448;
     }
 
-    .tabs > div.active,
-    .tabs > div.active::after {
+    .tabs>div.active,
+    .tabs>div.active::after {
       background-color: #224;
     }
 
-    ul > li {
+    ul>li {
       margin-bottom: 10px;
     }
 
@@ -219,12 +220,12 @@
       margin-right: 5px;
     }
 
-    #files-list > div {
+    #files-list>div {
       margin-bottom: 3px;
       cursor: pointer;
     }
 
-    #files-list > div.active {
+    #files-list>div.active {
       background: #55a;
     }
 
@@ -243,7 +244,7 @@
       background: #224;
     }
 
-    .files-menu > button {
+    .files-menu>button {
       background: #224;
       color: #fff;
       padding: 5px 10px;
@@ -254,8 +255,55 @@
       margin-left: 0;
     }
 
-    .files-menu > button:hover {
+    .files-menu>button:hover {
       background: #55a;
+    }
+
+    #docs-panel {
+      position: absolute;
+      z-index: 990;
+      background: #448;
+      box-shadow: rgba(0, 0, 0, 0.3) 3px 3px 10px 10px;
+      height: 800px;
+      width: 800px;
+      top: -1050px;
+      left: 50%;
+      box-sizing: border-box;
+      padding: 10px;
+      transform: translateX(-50%);
+      transition: top 300ms ease-in-out;
+    }
+
+    #docs-panel.show {
+      top: 0px;
+    }
+
+    #docs-panel i {
+      font-size: 11pt;
+      font-weight: 100;
+    }
+
+    #docs-panel .close {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      font-size: 24pt;
+      cursor: pointer;
+    }
+
+    #docs-panel .close:hover {
+      color: #fc0;
+    }
+
+    #file-toggle {
+      color: #224;
+      display: inline;
+      cursor: pointer;
+      font-size: 16pt;
+    }
+
+    #file-toggle:hover {
+      color: #fc0;
     }
   </style>
   <script type="text/javascript" src="./render.js"></script>
@@ -270,13 +318,13 @@
     <div id="code-container">
       <div id="code-toggle" onclick="toggleCode()">&#9654;</div>
       <div style="margin-bottom: 5px;">
-        <button onclick="toggleFiles()">FILES</button>
+        <div id="file-toggle" onclick="toggleFiles()">&raquo;</div>
         <button onclick="saveRun()" style="font-weight: bold; font-size: 12pt;">SAVE/RUN</button>
         <button onclick="exportGame()">EXPORT</button>
         <button onclick="importGame()">IMPORT</button>
         <button onclick="newGame()">CLEAR ALL</button>
         <button onclick="loadImage()">LOAD IMAGE</button>
-        <i style="font-size: 8pt; font-weight: 100;">v2.0.0</i>
+        <button onclick="showDocs(true)">HELP</button>
       </div>
       <div class="editor-area">
         <div id="files-block">
@@ -286,41 +334,44 @@
           </div>
           <div id="files-list"></div>
         </div>
-        <div id="code-blocks">
+        <div id="code-block">
           <div class="tabs"></div>
-          <div id="setup-block">
-            <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="code-editor"></textarea>
-          </div>
-          <div id="helpers-block">
-            <h3>Docs</h3>
-            <ul>
-              <li>
-                <span>function setup(game)</span>
-                <i style="font-size: 11pt; font-weight: 100;">called when your game launches</i>
-              </li>
-              <li>
-                <span>function update(game, frame, keys)</span>
-                <i style="font-size: 11pt; font-weight: 100;">called every 30ms to run your game</i>
-              </li>
-              <li>
-                <span>function draw(game, images, frame, context, canvas)</span>
-                <i style="font-size: 11pt; font-weight: 100;">called when your game needs to render, resets the canvas</i>
-              </li>
-              <li>
-                <span>function handleClick(game, event)</span>
-                <i style="font-size: 11pt; font-weight: 100;">called whenever the canvas is clicked</i>
-              </li>
-              <li>
-                <span>addImage(url)</span>
-                <i style="font-size: 11pt; font-weight: 100;">Load an image from a url, returns the image object</i>
-              </li>
-              <li>
-                <span>addAudio(url)</span>
-                <i style="font-size: 11pt; font-weight: 100;">Load a sound from a url, returns the audio object</i>
-              </li>
-            </ul>
-          </div>
+          <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="code-editor"></textarea>
         </div>
+      </div>
+      <div id="docs-panel">
+        <div class="close" onclick="showDocs(false)">&times;</div>
+        HTML Game Builder <i>v2.0.0</i>
+        <ul>
+          <li>
+            <span>function setup(game)</span>
+            <i>called when your game launches</i>
+          </li>
+          <li>
+            <span>function update(game, frame, keys)</span>
+            <i>called every 30ms to run your game</i>
+          </li>
+          <li>
+            <span>function draw(game, images, frame, context, canvas)</span>
+            <i>called when your game needs to render, resets the canvas</i>
+          </li>
+          <li>
+            <span>function handleClick(game, event)</span>
+            <i>called whenever the canvas is clicked</i>
+          </li>
+          <li>
+            <span>addImage(url)</span>
+            <i>Load an image from a url, returns the image object</i>
+          </li>
+          <li>
+            <span>addAudio(url)</span>
+            <i>Load a sound from a url, returns the audio object</i>
+          </li>
+          <li>
+            Adding Files: 
+            <i>Additional code files must all define classes and return the class definition</i>
+          </li>
+        </ul>
       </div>
       <div id="image-loader">
         <h3>Load Image</h3>
@@ -349,6 +400,7 @@
     initializeTabs();
     initializeFiles();
     toggleCode(true);
+    toggleFiles(JSON.parse(window.localStorage.getItem('show-files')));
     saveRun();
   </script>
 </body>

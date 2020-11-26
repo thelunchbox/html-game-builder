@@ -35,9 +35,35 @@ function addSound(src) {
 function saveRun() {
   // make sure current tab is saved
   saveCurrentTab();
+
+  // stop all sounds that are running
+  const sounds = Array.from(document.querySelectorAll('audio'));
+  sounds.forEach(sound => {
+    sound.pause();
+  });
   
   // run all NON-required code first
   // how do we run it in the same context and remove other code...
+
+  allFiles.forEach(file => {
+    if (LOCKED_FILES.includes(file)) return;
+    const text = window.localStorage.getItem(`${file}-code`);
+    if (text.startsWith('class ')) {
+      let i = 6;
+      let className = '';
+      while (text[i] !== ' ' && text[i] != '{') {
+        className += text[i];
+        i++;
+      }
+      if (!text.endsWith(`return ${className};`)) {
+        throw new Error(`Must return class ${className} at end of ${file}.js!`)
+      }
+      const classFactory = new Function(text);
+      window[className] = classFactory();
+    } else {
+      throw new Error(`${file}.js must define and return a class.`);
+    }
+  });
 
   setupFunction = new Function('game', window.localStorage.getItem('setup-code'));
   clickFunction = new Function('game', 'event', window.localStorage.getItem('click-code'));
