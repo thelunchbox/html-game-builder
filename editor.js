@@ -11,7 +11,7 @@ const REVERSE_SIBLINGS = Object.entries(SIBLINGS).reduce((agg, [key, value]) => 
 }), {});
 const OTHER_PAIRS = Object.values(SIBLINGS);
 
-function editorKeydown(e) {
+async function editorKeydown(e) {
   const editor = e.target;
   const {
     value,
@@ -59,6 +59,19 @@ function editorKeydown(e) {
       editor.selectionStart = newStart;
       editor.selectionEnd = newEnd;
     }
+  }
+  if (e.keyCode === 67 && (e.ctrlKey || e.metaKey) && selectionStart === selectionEnd) { // ctrl + c
+    e.preventDefault();
+    let start = selectionStart;
+    while (value[start - 1] !== '\n' && start > 0) {
+      start--;
+    }
+    let end = selectionEnd;
+    while(value[end] !== '\n' && end < value.length) {
+      end++;
+    }
+    const copy = value.substr(start, end - start);
+    await navigator.clipboard.writeText(`\n${copy}`);
   }
   if (e.keyCode === 191 && (e.ctrlKey || e.metaKey)) { // forward slash
     e.preventDefault();
@@ -187,9 +200,6 @@ function editorKeydown(e) {
       start--;
     }
     let end = selectionEnd;
-    // while(value[end] !== '\n' && end < value.length) {
-    //   end++;
-    // }
     const currentLine = value.substr(start, end);
     let spaces = 0;
     while (currentLine[spaces] === ' ') {

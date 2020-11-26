@@ -5,31 +5,7 @@ function makeCanvas (root, options = {}) {
   canvas.width = width;
   canvas.height = height;
   root.appendChild(canvas);
-
-  const resizeCanvas = function () {
-    const normalRatio = canvas.width / canvas.height;
-    const newRatio = root.offsetWidth / root.offsetHeight;
-    let scale = 1;
-    let translate = '';
-    if (newRatio < normalRatio) {
-      // tall and skinny
-      scale = root.offsetWidth / canvas.width;
-      translate = ` translateX(${(scale * 100) - 100}%)`;
-    } else if (newRatio >= normalRatio) {
-      // short and fat
-      scale = root.offsetHeight / canvas.height;
-      translate = ` translateY(${(scale * 100) - 100}%)`;
-    }
-    canvas.style.transform = `scale(${scale}, ${scale})${translate}`;
-  }
-
-  window.addEventListener('resize', event => {
-    resizeCanvas();
-  });
-
-  setTimeout(resizeCanvas, 10);
-
-  return [canvas, resizeCanvas];
+  return [canvas];
 }
 
 async function loadSVGRaw(source) {

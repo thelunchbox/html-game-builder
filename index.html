@@ -14,15 +14,18 @@
     }
 
     #canvas-container {
-      background-color: #224;
+      background-color: #222;
       width: 800px;
-      position: relative;
-      left: 0;
       transition: width 250ms ease-in-out;
     }
 
     canvas.main {
       background-color: #000000;
+      position: relative;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
     }
 
     ::-webkit-scrollbar {
@@ -48,18 +51,19 @@
       position: relative;
       padding-left: 10px;
       padding-top: 5px;
+      transition: width 250ms ease-in-out;
     }
 
     #code-container textarea {
+      box-sizing: border-box;
       height: calc(100vh - 100px);
-      width: calc(100vw - 830px);
+      width: 100%;
       background-color: #224;
       color: #ffc;
       outline: none;
       border: none;
       padding-left: 5px;
       user-select: unset;
-      margin-top: 3px;
       resize: none;
     }
 
@@ -72,19 +76,11 @@
       padding: 2px;
     }
 
-    #code-blocks {
-      height: calc(100vh - 46px);
+    #code-block {
+      height: 100%;
+      width: 100%;
       overflow-y: auto;
       padding-right: 6px;
-    }
-
-    .code-header {
-      cursor: pointer;
-      margin-top: 5px;
-    }
-
-    .code-header:hover {
-      color: #f90;
     }
 
     .hidden {
@@ -102,7 +98,7 @@
 
     button {
       background: #448;
-      color: #f70;
+      color: #fc0;
       padding: 5px 8px;
       border-color: #224;
       outline: none;
@@ -139,26 +135,46 @@
 
     .tabs {
       width: 100%;
-      margin-bottom: 5px;
       display: flex;
     }
 
     .tabs>div {
-      margin-right: 2px;
       cursor: pointer;
       background-color: #77a;
       padding: 5px 8px;
+      font-weight: 100;
+      position: relative;
+    }
+
+    .tabs>div::after {
+      content: '\00d7';
+      display: none;
+      position: absolute;
+      top: 0;
+      right: 0;
+      background-color: #448;
+      color: white;
+      height: 100%;
+      width: 18px;
+      padding-left: 5px;
+      font-weight: 100;
+      font-size: 20pt;
+    }
+
+    .tabs>div:hover::after {
+      display: block;
     }
 
     .tabs>div:hover {
       background-color: #448;
     }
 
-    .tabs>div.active {
+    .tabs>div.active,
+    .tabs>div.active::after {
       background-color: #224;
     }
 
-    ul > li {
+    ul>li {
       margin-bottom: 10px;
     }
 
@@ -173,8 +189,10 @@
       border-top-left-radius: 10px;
       border-bottom-left-radius: 10px;
       box-sizing: border-box;
-      text-align: center;
-      font-size: 20pt;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14pt;
       cursor: pointer;
     }
 
@@ -183,12 +201,114 @@
     }
 
     #code-toggle:hover {
-      background-color: #448;
       opacity: 1;
+      color: #fc0;
+    }
+
+    .editor-area {
+      display: flex;
+    }
+
+    #files-list {
+      background: #224;
+      color: #ffc;
+      font-weight: 100;
+      font-size: 10pt;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 2px;
+      height: 100%;
+      margin-right: 5px;
+    }
+
+    #files-list>div {
+      margin-bottom: 3px;
+      cursor: pointer;
+    }
+
+    #files-list>div.active {
+      background: #55a;
+    }
+
+    #files-block {
+      overflow: hidden;
+      width: 0;
+      transition: width 250ms ease-in-out;
+    }
+
+    #files-block.show {
+      width: 200px;
+    }
+
+    .files-menu {
+      margin-right: 5px;
+      background: #224;
+    }
+
+    .files-menu>button {
+      background: #224;
+      color: #fff;
+      padding: 5px 10px;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      border-radius: 0;
+      margin-left: 0;
+    }
+
+    .files-menu>button:hover {
+      background: #55a;
+    }
+
+    #docs-panel {
+      position: absolute;
+      z-index: 990;
+      background: #448;
+      box-shadow: rgba(0, 0, 0, 0.3) 3px 3px 10px 10px;
+      height: 800px;
+      width: 800px;
+      top: -1050px;
+      left: 50%;
+      box-sizing: border-box;
+      padding: 10px;
+      transform: translateX(-50%);
+      transition: top 300ms ease-in-out;
+    }
+
+    #docs-panel.show {
+      top: 0px;
+    }
+
+    #docs-panel i {
+      font-size: 11pt;
+      font-weight: 100;
+    }
+
+    #docs-panel .close {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      font-size: 24pt;
+      cursor: pointer;
+    }
+
+    #docs-panel .close:hover {
+      color: #fc0;
+    }
+
+    #file-toggle {
+      color: #224;
+      display: inline;
+      cursor: pointer;
+      font-size: 16pt;
+    }
+
+    #file-toggle:hover {
+      color: #fc0;
     }
   </style>
   <script type="text/javascript" src="./render.js"></script>
   <script type="text/javascript" src="./editor.js"></script>
+  <script type="text/javascript" src="./manager.js"></script>
   <script type="text/javascript" src="./index.js"></script>
 </head>
 
@@ -198,54 +318,60 @@
     <div id="code-container">
       <div id="code-toggle" onclick="toggleCode()">&#9654;</div>
       <div style="margin-bottom: 5px;">
-        <button onclick="saveRun()" style="font-weight: bold; font-size: 12pt;">SAVE & RUN</button>
+        <div id="file-toggle" onclick="toggleFiles()">&raquo;</div>
+        <button onclick="saveRun()" style="font-weight: bold; font-size: 12pt;">SAVE/RUN</button>
         <button onclick="exportGame()">EXPORT</button>
         <button onclick="importGame()">IMPORT</button>
         <button onclick="newGame()">CLEAR ALL</button>
         <button onclick="loadImage()">LOAD IMAGE</button>
-        <i>v1.7.0</i>
+        <button onclick="showDocs(true)">HELP</button>
       </div>
-      <div id="code-blocks">
-        <div class="tabs">
-          <div id="setup-tab" onclick="showTab(event, 'setup')">Setup</div>
-          <div id="update-tab" onclick="showTab(event, 'update')">Update</div>
-          <div id="draw-tab" onclick="showTab(event, 'draw')">Draw</div>
-          <div id="click-tab" onclick="showTab(event, 'click')">Click Handler</div>
-          <div id="helpers-tab" onclick="showTab(event, 'helpers')">Helper Functions</div>
+      <div class="editor-area">
+        <div id="files-block">
+          <div class="files-menu">
+            <button onclick="addFile()">＋</button>
+            <button onclick="deleteFile()">－</button>
+          </div>
+          <div id="files-list"></div>
         </div>
-        <div id="setup-block">
-          <span>function setup(game)</span>
-          <i style="font-size: 11pt; font-weight: 100;">called when your game launches</i>
-          <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="setup-code"></textarea>
+        <div id="code-block">
+          <div class="tabs"></div>
+          <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="code-editor"></textarea>
         </div>
-        <div id="update-block">
-          <span>function update(game, frame, keys)</span>
-          <i style="font-size: 11pt; font-weight: 100;">called every 30ms to run your game</i>
-          <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="update-code"></textarea>
-        </div>
-        <div id="draw-block">
-          <span>function draw(game, images, frame, context, canvas)</span>
-          <i style="font-size: 11pt; font-weight: 100;">called when your game needs to render, resets the canvas</i>
-          <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="draw-code"></textarea>
-        </div>
-        <div id="click-block">
-          <span>function handleClick(game, event)</span>
-          <i style="font-size: 11pt; font-weight: 100;">called whenever the canvas is clicked</i>
-          <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="click-code"></textarea>
-        </div>
-        <div id="helpers-block">
-          <h3>Helper Functions</h3>
-          <ul>
-            <li>
-              <span>addImage(url)</span>
-              <i style="font-size: 11pt; font-weight: 100;">Load an image from a url, returns the image object</i>
-            </li>
-            <li>
-              <span>addAudio(url)</span>
-              <i style="font-size: 11pt; font-weight: 100;">Load a sound from a url, returns the audio object</i>
-            </li>
-          </ul>
-        </div>
+      </div>
+      <div id="docs-panel">
+        <div class="close" onclick="showDocs(false)">&times;</div>
+        HTML Game Builder <i>v2.0.0</i>
+        <ul>
+          <li>
+            <span>function setup(game)</span>
+            <i>called when your game launches</i>
+          </li>
+          <li>
+            <span>function update(game, frame, keys)</span>
+            <i>called every 30ms to run your game</i>
+          </li>
+          <li>
+            <span>function draw(game, images, frame, context, canvas)</span>
+            <i>called when your game needs to render, resets the canvas</i>
+          </li>
+          <li>
+            <span>function handleClick(game, event)</span>
+            <i>called whenever the canvas is clicked</i>
+          </li>
+          <li>
+            <span>addImage(url)</span>
+            <i>Load an image from a url, returns the image object</i>
+          </li>
+          <li>
+            <span>addAudio(url)</span>
+            <i>Load a sound from a url, returns the audio object</i>
+          </li>
+          <li>
+            Adding Files: 
+            <i>Additional code files must all define classes and return the class definition</i>
+          </li>
+        </ul>
       </div>
       <div id="image-loader">
         <h3>Load Image</h3>
@@ -270,17 +396,11 @@
       height: 900
     });
     setupCanvasClickHandler();
-
-    restoreText('setup-code');
-    restoreText('click-code');
-    restoreText('update-code');
-    restoreText('draw-code');
     restoreImages();
-
-    const loadedTab = window.localStorage.getItem('selected-tab') || 'setup';
-    showTab({
-      target: document.getElementById(`${loadedTab}-tab`)
-    }, loadedTab);
+    initializeTabs();
+    initializeFiles();
+    toggleCode(true);
+    toggleFiles(JSON.parse(window.localStorage.getItem('show-files')));
     saveRun();
   </script>
 </body>
