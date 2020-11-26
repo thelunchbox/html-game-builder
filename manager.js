@@ -4,32 +4,33 @@ function getTabState() {
   return JSON.parse(window.localStorage.getItem('tab-state'));
 }
 
-function setTabState(tabs) {
+function saveTabState(tabs) {
   window.localStorage.setItem('tab-state', JSON.stringify(tabs));
 }
 
-function getAllFiles() {
+function getFileState() {
   return JSON.parse(window.localStorage.getItem('all-files'));
 }
 
-function setAllFiles(files) {
+function saveFileState(files) {
   window.localStorage.setItem('all-files', JSON.stringify(files));
 }
 
 function saveCurrentTab() {
   const codeEditor = document.querySelector('#code-editor');
   const currentSelectedTab = openTabs.find(t => t.active);
+  if (!currentSelectedTab) return;
   window.localStorage.setItem(`${currentSelectedTab.name}-code`, codeEditor.value);
 }
 
-let allFiles = getAllFiles() || [...LOCKED_FILES];
+let allFiles = getFileState() || [...LOCKED_FILES];
 let openTabs = getTabState() || LOCKED_FILES.map((name, i) => ({
   name,
   active: i === 0,
 }));
 
-setTabState(openTabs);
-setAllFiles(allFiles);
+saveTabState(openTabs);
+saveFileState(allFiles);
 
 function download(data, filename, type) {
   var file = new Blob([data], { type: type });
@@ -139,7 +140,7 @@ function newGame() {
       active: i === 0,
     }));
 
-    window.localStorage.clear();    
+    window.localStorage.clear();
     initializeTabs();
     initializeFiles();
     document.querySelector('#code-editor').value = '';
@@ -222,7 +223,7 @@ function toggleFiles(override) {
 
 function createTab(tab, container) {
   const el = document.createElement('div');
-  el.addEventListener('click', (event) => showTab(event, tab.name));
+  el.addEventListener('click', (event) => tabClick(event, tab.name));
   el.innerText = `${tab.name}.js`;
   if (tab.active) el.classList.add('active');
   container.appendChild(el);
@@ -234,13 +235,19 @@ function initializeTabs() {
   openTabs.forEach(tab => createTab(tab, tabContainer));
   const selectedTab = openTabs.find(t => t.active);
   const codeEditor = document.querySelector('#code-editor');
-  codeEditor.value = window.localStorage.getItem(`${selectedTab.name}-code`) || '';
+  if (selectedTab) {
+    codeEditor.value = window.localStorage.getItem(`${selectedTab.name}-code`) || '';
+  } else if (openTabs.length === 1) {
+    selectTab(openTabs[0]);
+  } else {
+    codeEditor.style.display = 'none';
+  }
 }
 
 function createFile(file, container) {
   const el = document.createElement('div');
   el.addEventListener('click', (event) => selectFile(event, file));
-  el.addEventListener('dblclick', (event) => openOrShowTab(file));
+  el.addEventListener('dblclick', (event) => createOrShowTab(file));
   el.innerText = `${file}.js`;
   el.setAttribute('id', file + '-file');
   container.appendChild(el);
@@ -261,8 +268,16 @@ function selectFile(event, file) {
   el.classList.add('active');
 }
 
-function openOrShowTab(file) {
-  console.log('yay');
+function createOrShowTab(file) {
+  let targetTab = openTabs.find(t => t.name === selectedFile);
+  if (!targetTab) {
+    targetTab = { name: file };
+    const tabContainer = document.querySelector('.tabs');
+    createTab(targetTab, tabContainer);
+    openTabs.push(targetTab);
+    saveTabState(openTabs);
+  }
+  selectTab(targetTab);
 }
 
 function addFile() {
@@ -276,7 +291,7 @@ function addFile() {
   const filesContainer = document.querySelector('#files-list');
   createFile(newFile, filesContainer);
   allFiles.push(newFile);
-  setAllFiles(allFiles);
+  saveFileState(allFiles);
 }
 
 function deleteFile() {
@@ -290,51 +305,69 @@ function deleteFile() {
   filesContainer.removeChild(fileElement);
   window.localStorage.removeItem(`${selectedFile}-code`);
   // if a tab is open, remove it
+
+  let targetTab = openTabs.find(t => t.name === selectedFile);
+  const wasActive = targetTab && targetTab.active;
+  const index = targetTab ? deleteTab(targetTab) : -1;
+  if (index < 0 || !wasActive) return;
+  targetTab = openTabs[index];
+  selectTab(targetTab);
 }
 
-function showTab(event, key) {
+function tabClick(event, key) {
   const tab = event.target;
-  const parent = tab.parentElement;
-  const children = Array.from(parent.children);
-  children.forEach(c => c.classList.remove('active'));
-  tab.classList.add('active');
 
-  const codeEditor = document.querySelector('#code-editor');
-  const currentSelectedTab = openTabs.find(t => t.active);
   let targetTab = openTabs.find(t => t.name === key);
-
+  const isActive = targetTab.active;
   if (event.offsetX > tab.offsetWidth - 20) {
-    const tabIndex = openTabs.indexOf(targetTab);
-    if (targetTab === currentSelectedTab) {
-      let newIndex = tabIndex;
-      if (tabIndex === openTabs.length - 1) newIndex -= 1;
-      openTabs.splice(tabIndex, 1);
-      if (newIndex < 0) {
-        targetTab = null;
-      } else {
-        targetTab = openTabs[newIndex];
-        children[newIndex].classList.add('active');
-      }
-    } else {
-      openTabs.splice(tabIndex, 1);
-    }
-    parent.removeChild(tab);
-    setTabState(openTabs);
+    const index = deleteTab(targetTab);
+    if (index < 0 || !isActive) return;
+    targetTab = openTabs[index];
+  }
+  selectTab(targetTab);
+}
+
+function selectTab(tab) {
+  const codeEditor = document.querySelector('#code-editor');
+  const tabContainer = document.querySelector('.tabs');
+  const tabs = Array.from(tabContainer.children);
+  tabs.forEach(c => c.classList.remove('active'));
+
+  const currentSelectedTab = openTabs.find(t => t.active);
+  if (currentSelectedTab) {
+    window.localStorage.setItem(`${currentSelectedTab.name}-code`, codeEditor.value);
+    currentSelectedTab.active = false;
+    currentSelectedTab.selection = [codeEditor.selectionStart, codeEditor.selectionEnd];
   }
 
-  window.localStorage.setItem(`${currentSelectedTab.name}-code`, codeEditor.value);
-  currentSelectedTab.active = false;
-  currentSelectedTab.selection = [codeEditor.selectionStart, codeEditor.selectionEnd];
-
-  if (targetTab) {
-    targetTab.active = true;
-    codeEditor.value = window.localStorage.getItem(`${targetTab.name}-code`) || '';
-    if (targetTab.selection)
-    [codeEditor.selectionStart, codeEditor.selectionEnd] = targetTab.selection;
+  if (tab) {
+    const index = openTabs.indexOf(tab);
+    tabs[index].classList.add('active');
+    tab.active = true;
+    codeEditor.value = window.localStorage.getItem(`${tab.name}-code`) || '';
+    if (tab.selection)
+      [codeEditor.selectionStart, codeEditor.selectionEnd] = tab.selection;
     codeEditor.focus();
   } else {
     codeEditor.value = '';
   }
+  codeEditor.style.display = 'block';
+}
+
+function deleteTab(tab) {
+  const codeEditor = document.querySelector('#code-editor');
+  const tabContainer = document.querySelector('.tabs');
+  const tabs = Array.from(tabContainer.children);
+  const tabIndex = openTabs.indexOf(tab);
+  let newIndex = tabIndex;
+  if (tabIndex === openTabs.length - 1) newIndex -= 1;
+  openTabs.splice(tabIndex, 1);
+  tabContainer.removeChild(tabs[tabIndex]);
+  saveTabState(openTabs);
+  if (newIndex < 0) {
+    codeEditor.style.display = 'none';
+  }
+  return newIndex;
 }
 
 function restoreImages() {
