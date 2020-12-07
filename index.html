@@ -390,7 +390,26 @@
       </div>
     </div>
   </div>
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-app.js"></script>
+  
+  <!-- TODO: Add SDKs for Firebase products that you want to use
+       https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-firestore.js"></script>
+  
   <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyB2AONH0KskXRGqccS_8BmpYUTaI2L9vvk",
+      authDomain: "olive-hero-game-builder-21.firebaseapp.com",
+      projectId: "olive-hero-game-builder-21",
+      storageBucket: "olive-hero-game-builder-21.appspot.com",
+      messagingSenderId: "54990119298",
+      appId: "1:54990119298:web:843f5bf4faac2e65362f9b"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    // https://firebase.google.com/docs/firestore/quickstart
     const [, resizeCanvas] = makeCanvas(document.getElementById('canvas-container'), {
       width: 1600,
       height: 900
