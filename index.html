@@ -331,6 +331,7 @@
           <div class="files-menu">
             <button onclick="addFile()">＋</button>
             <button onclick="deleteFile()">－</button>
+            <button onclick="addExternal()">	🔗</button>
           </div>
           <div id="files-list"></div>
         </div>
@@ -341,7 +342,7 @@
       </div>
       <div id="docs-panel">
         <div class="close" onclick="showDocs(false)">&times;</div>
-        HTML Game Builder <i>v2.0.0</i>
+        HTML Game Builder <i>v2.1.0</i>
         <ul>
           <li>
             <span>function setup(game)</span>
@@ -399,6 +400,7 @@
     restoreImages();
     initializeTabs();
     initializeFiles();
+    loadExternals();
     toggleCode(true);
     toggleFiles(JSON.parse(window.localStorage.getItem('show-files')));
     saveRun();
