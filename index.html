@@ -295,6 +295,36 @@
       color: #fc0;
     }
 
+    #library-panel {
+      position: absolute;
+      z-index: 990;
+      background: #448;
+      box-shadow: rgba(0, 0, 0, 0.3) 3px 3px 10px 10px;
+      height: 100vh;
+      width: 800px;
+      top: 0;
+      right: -850px;
+      box-sizing: border-box;
+      padding: 10px;
+      transition: right 300ms ease-in-out;
+    }
+
+    #library-panel.show {
+      right: 0;
+    }
+
+    #library-panel .close {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      font-size: 24pt;
+      cursor: pointer;
+    }
+
+    #library-panel .close:hover {
+      color: #fc0;
+    }
+
     #file-toggle {
       color: #224;
       display: inline;
@@ -309,6 +339,7 @@
   <script type="text/javascript" src="./render.js"></script>
   <script type="text/javascript" src="./editor.js"></script>
   <script type="text/javascript" src="./manager.js"></script>
+  <script type="text/javascript" src="./library.js"></script>
   <script type="text/javascript" src="./index.js"></script>
 </head>
 
@@ -324,6 +355,7 @@
         <button onclick="importGame()">IMPORT</button>
         <button onclick="newGame()">CLEAR ALL</button>
         <button onclick="loadImage()">LOAD IMAGE</button>
+        <button onclick="showLibrary(true)">LIBRARY</button>
         <button onclick="showDocs(true)">HELP</button>
       </div>
       <div class="editor-area">
@@ -338,6 +370,12 @@
           <div class="tabs"></div>
           <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="code-editor"></textarea>
         </div>
+      </div>
+      <div id="library-panel">
+        <div class="close" onclick="showLibrary(false)">&times;</div>
+        Library
+        <ul id="library-list" onclick="loadGame(event)">
+        </ul>
       </div>
       <div id="docs-panel">
         <div class="close" onclick="showDocs(false)">&times;</div>
@@ -418,6 +456,7 @@
     restoreImages();
     initializeTabs();
     initializeFiles();
+    initializeDb();
     toggleCode(true);
     toggleFiles(JSON.parse(window.localStorage.getItem('show-files')));
     saveRun();
