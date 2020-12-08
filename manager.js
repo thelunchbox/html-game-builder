@@ -267,7 +267,7 @@ function initializeTabs() {
   const codeEditor = document.querySelector('#code-editor');
   if (selectedTab) {
     codeEditor.value = window.localStorage.getItem(`${selectedTab.name}-code`) || '';
-  } else if (openTabs.length === 1) {
+  } else if (openTabs.length >= 1) {
     selectTab(openTabs[0]);
   } else {
     codeEditor.style.display = 'none';
@@ -286,8 +286,7 @@ function createFile(file, container) {
   }
   const suffix = file.endsWith('.js') ? '' : '.js';
   el.innerText = `${file}${suffix}`;
-  // TODO: don't allow a . to get into the id down here... need a plan for that
-  el.setAttribute('id', file + '-file');
+  el.setAttribute('id', file.replace(/\W/g, '_') + '-file');
   container.appendChild(el);
 }
 
@@ -364,31 +363,33 @@ function addFile() {
 
 function deleteFile() {
   if (!selectedFile) return;
-
+  let id, file;
   if (selectedFile.startsWith('ext') && selectedFile.includes('/')) {
-    const [id, file] = selectedFile.split('/');
+    [id, file] = selectedFile.split('/');
     document.body.removeChild(document.querySelector(`#${id}`));
   } else {
-    if (LOCKED_FILES.includes(selectedFile)) {
-      alert(`Can't delete required file ${selectedFile}.js!`);
-      return;
-    }
-    const fileElement = document.querySelector(`#${selectedFile}-file`);
-    const filesContainer = document.querySelector('#files-list');
-    filesContainer.removeChild(fileElement);
-    // if a tab is open, remove it  
-    let targetTab = openTabs.find(t => t.name === selectedFile);
-    const wasActive = targetTab && targetTab.active;
-    const index = targetTab ? deleteTab(targetTab) : -1;
-    if (index < 0 || !wasActive) return;
-    targetTab = openTabs[index];
-    selectTab(targetTab);
+    file = selectedFile;
   }
+  if (LOCKED_FILES.includes(selectedFile)) {
+    alert(`Can't delete required file ${selectedFile}.js!`);
+    return;
+  }
+  const fileElement = document.querySelector(`#${file.replace(/\W/g, '_')}-file`);
+  const filesContainer = document.querySelector('#files-list');
+  filesContainer.removeChild(fileElement);
 
   window.localStorage.removeItem(`${selectedFile}-code`);
   const i = allFiles.indexOf(selectedFile);
   allFiles.splice(i, 1);
   saveFileState(allFiles);
+
+  // if a tab is open, remove it  
+  let targetTab = openTabs.find(t => t.name === selectedFile);
+  const wasActive = targetTab && targetTab.active;
+  const index = targetTab ? deleteTab(targetTab) : -1;
+  if (index < 0 || !wasActive) return;
+  targetTab = openTabs[index];
+  selectTab(targetTab);
 }
 
 function tabClick(event, key) {
