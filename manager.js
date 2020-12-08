@@ -87,6 +87,9 @@ function finishImport(content) {
       allFiles.push(key.substr(0, key.length - 5));
     }
   });
+  initializeFiles();
+  initializeTabs();
+  loadExternals();
   const newlySelectedTab = openTabs[0];
   const codeEditor = document.querySelector('#code-editor');
   codeEditor.value = window.localStorage.getItem(`${newlySelectedTab.name}-code`) || '';
@@ -105,6 +108,17 @@ function loadImages(array) {
     };
   }, {});
   window.localStorage.setItem('_images', JSON.stringify(getImages()));
+}
+
+function loadExternals() {
+  allFiles.filter(x => x.startsWith('ext') && x.includes('/')).forEach(file => {
+    const [id] = file.split('/');
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = window.localStorage.getItem(`${file}-code`);
+    script.id = id;
+    document.body.appendChild(script);
+  });
 }
 
 function getImages() {
@@ -141,6 +155,9 @@ function newGame() {
     }));
 
     window.localStorage.clear();
+    const externalScripts = Array.from(document.querySelectorAll('script[id*="ext-"'));
+    externalScripts.forEach(s => document.body.removeChild(s));
+    
     initializeTabs();
     initializeFiles();
     document.querySelector('#code-editor').value = '';
@@ -250,7 +267,7 @@ function initializeTabs() {
   const codeEditor = document.querySelector('#code-editor');
   if (selectedTab) {
     codeEditor.value = window.localStorage.getItem(`${selectedTab.name}-code`) || '';
-  } else if (openTabs.length === 1) {
+  } else if (openTabs.length >= 1) {
     selectTab(openTabs[0]);
   } else {
     codeEditor.style.display = 'none';
@@ -259,10 +276,17 @@ function initializeTabs() {
 
 function createFile(file, container) {
   const el = document.createElement('div');
-  el.addEventListener('click', (event) => selectFile(event, file));
-  el.addEventListener('dblclick', (event) => createOrShowTab(file));
-  el.innerText = `${file}.js`;
-  el.setAttribute('id', file + '-file');
+  const originalFile = file;
+  el.addEventListener('click', (event) => selectFile(event, originalFile));
+  el.addEventListener('dblclick', (event) => createOrShowTab(originalFile));
+  if (file.startsWith('ext') && file.includes('/')) {
+    el.style.color = '#f70';
+    el.setAttribute('data-id', file);
+    [, file] = file.split('/');
+  }
+  const suffix = file.endsWith('.js') ? '' : '.js';
+  el.innerText = `${file}${suffix}`;
+  el.setAttribute('id', file.replace(/\W/g, '_') + '-file');
   container.appendChild(el);
 }
 
@@ -282,6 +306,10 @@ function selectFile(event, file) {
 }
 
 function createOrShowTab(file) {
+  if (file.startsWith('ext') && file.includes('/')) {
+    alert('cant open external files!');
+    return;
+  }
   let targetTab = openTabs.find(t => t.name === selectedFile);
   if (!targetTab) {
     targetTab = { name: file };
@@ -293,9 +321,35 @@ function createOrShowTab(file) {
   selectTab(targetTab);
 }
 
+function addExternal() {
+  let resource = prompt('location of external library');
+  if (!resource) return;
+  const id = `ext-${Math.floor(Math.random() * 10000000)}`;
+  const script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.onload = () => {
+    const [name] = resource.split('/').reverse();
+    const filesContainer = document.querySelector('#files-list');
+    const file = `${id}/${name}`;
+    createFile(file, filesContainer);
+    window.localStorage.setItem(`${file}-code`, resource);
+    allFiles.push(file);
+    saveFileState(allFiles);
+  };
+  script.onerror = e => {
+    alert(`Could not load external library ${resource}`);
+  }
+  script.src = resource;
+  script.id = id;
+
+  document.body.appendChild(script);
+}
+
 function addFile() {
-  const newFile = prompt('name for new file');
+  let newFile = prompt('name for new file');
   if (!newFile) return;
+  if (newFile.endsWith('.js')) newFile = newFile.substr(0, newFile.length - 3);
+  if (newFile.match(/\W/)) newFile = newFile.replace(/\W/g, '_');
   if (allFiles.includes(newFile)) {
     alert('That file already exists, try again');
     return addFile();
@@ -309,16 +363,27 @@ function addFile() {
 
 function deleteFile() {
   if (!selectedFile) return;
+  let id, file;
+  if (selectedFile.startsWith('ext') && selectedFile.includes('/')) {
+    [id, file] = selectedFile.split('/');
+    document.body.removeChild(document.querySelector(`#${id}`));
+  } else {
+    file = selectedFile;
+  }
   if (LOCKED_FILES.includes(selectedFile)) {
     alert(`Can't delete required file ${selectedFile}.js!`);
     return;
   }
-  const fileElement = document.querySelector(`#${selectedFile}-file`);
+  const fileElement = document.querySelector(`#${file.replace(/\W/g, '_')}-file`);
   const filesContainer = document.querySelector('#files-list');
   filesContainer.removeChild(fileElement);
-  window.localStorage.removeItem(`${selectedFile}-code`);
-  // if a tab is open, remove it
 
+  window.localStorage.removeItem(`${selectedFile}-code`);
+  const i = allFiles.indexOf(selectedFile);
+  allFiles.splice(i, 1);
+  saveFileState(allFiles);
+
+  // if a tab is open, remove it  
   let targetTab = openTabs.find(t => t.name === selectedFile);
   const wasActive = targetTab && targetTab.active;
   const index = targetTab ? deleteTab(targetTab) : -1;

@@ -47,8 +47,13 @@ function saveRun() {
 
   allFiles.forEach(file => {
     if (LOCKED_FILES.includes(file)) return;
+    if (file.startsWith('ext') && file.includes('/')) return;
+
     const text = window.localStorage.getItem(`${file}-code`);
-    if (text.startsWith('class ')) {
+
+    if (!text) {
+      console.log(`Ignoring ${file}.js, because it's empty.`);
+    } else if (text.startsWith('class ')) {
       let i = 6;
       let className = '';
       while (text[i] !== ' ' && text[i] != '{') {
