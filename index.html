@@ -1,344 +1,7 @@
 <html>
 
 <head>
-  <style>
-    body {
-      margin: 0px;
-      padding: 0px;
-      background: #77a;
-      color: #fff;
-      font-weight: bold;
-      font-family: Arial, Helvetica, sans-serif;
-      user-select: none;
-      overflow: hidden;
-    }
-
-    #canvas-container {
-      background-color: #222;
-      width: 800px;
-      height: 100vh;
-      transition: width 250ms ease-in-out;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    canvas.main {
-      background-color: #000000;
-      width: 100%;
-    }
-
-    ::-webkit-scrollbar {
-      width: 12px;
-    }
-
-    ::-webkit-scrollbar-track {
-      -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-      border-radius: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      border-radius: 10px;
-      -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
-      background-color: rgba(32, 32, 64, 0.3)
-    }
-
-    .main {
-      display: flex;
-    }
-
-    #code-container {
-      position: relative;
-      padding-left: 10px;
-      padding-top: 5px;
-      transition: width 250ms ease-in-out;
-    }
-
-    #code-container textarea {
-      box-sizing: border-box;
-      height: calc(100vh - 100px);
-      width: 100%;
-      background-color: #224;
-      color: #ffc;
-      outline: none;
-      border: none;
-      padding-left: 5px;
-      user-select: unset;
-      resize: none;
-    }
-
-    #code-container span {
-      background-color: #224;
-      color: #ffc;
-      font-size: 12pt;
-      border-radius: 2px;
-      font-family: 'Courier New', Courier, monospace;
-      padding: 2px;
-    }
-
-    #code-block {
-      height: 100%;
-      width: 100%;
-      overflow-y: auto;
-      padding-right: 6px;
-    }
-
-    .hidden {
-      border-bottom: solid 2px #224;
-      margin-bottom: 10px;
-    }
-
-    .hidden::after {
-      content: ' [click to show]';
-    }
-
-    .hide {
-      display: none;
-    }
-
-    button {
-      background: #448;
-      color: #fc0;
-      padding: 5px 8px;
-      border-color: #224;
-      outline: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #55a;
-    }
-
-    #image-loader {
-      position: absolute;
-      z-index: 999;
-      background: #77a;
-      box-shadow: rgba(0, 0, 0, 0.3) 3px 3px 10px 10px;
-      height: 200px;
-      width: 500px;
-      top: -250px;
-      left: 50%;
-      box-sizing: border-box;
-      padding: 10px;
-      transform: translateX(-50%);
-      transition: top 300ms ease-in-out;
-    }
-
-    #image-loader.show {
-      top: 0px;
-    }
-
-    #image-loader>div {
-      margin-bottom: 10px;
-    }
-
-    .tabs {
-      width: 100%;
-      display: flex;
-    }
-
-    .tabs>div {
-      cursor: pointer;
-      background-color: #77a;
-      padding: 5px 8px;
-      font-weight: 100;
-      position: relative;
-    }
-
-    .tabs>div::after {
-      content: '\00d7';
-      display: none;
-      position: absolute;
-      top: 0;
-      right: 0;
-      background-color: #448;
-      color: white;
-      height: 100%;
-      width: 18px;
-      padding-left: 5px;
-      font-weight: 100;
-      font-size: 20pt;
-    }
-
-    .tabs>div:hover::after {
-      display: block;
-    }
-
-    .tabs>div:hover {
-      background-color: #448;
-    }
-
-    .tabs>div.active,
-    .tabs>div.active::after {
-      background-color: #224;
-    }
-
-    ul>li {
-      margin-bottom: 10px;
-    }
-
-    #code-toggle {
-      position: absolute;
-      left: -30px;
-      width: 30px;
-      top: 0;
-      height: 30px;
-      background-color: #77a;
-      color: #224;
-      border-top-left-radius: 10px;
-      border-bottom-left-radius: 10px;
-      box-sizing: border-box;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14pt;
-      cursor: pointer;
-    }
-
-    #code-toggle.closed {
-      opacity: 0.5;
-    }
-
-    #code-toggle:hover {
-      opacity: 1;
-      color: #fc0;
-    }
-
-    .editor-area {
-      display: flex;
-      height: calc(100vh - 50px);
-    }
-
-    #files-list {
-      background: #224;
-      color: #ffc;
-      font-weight: 100;
-      font-size: 10pt;
-      font-family: 'Courier New', Courier, monospace;
-      padding: 2px;
-      height: 100%;
-      margin-right: 5px;
-    }
-
-    #files-list>div {
-      margin-bottom: 3px;
-      cursor: pointer;
-    }
-
-    #files-list>div.active {
-      background: #55a;
-    }
-
-    #files-block {
-      overflow: hidden;
-      width: 0;
-      transition: width 250ms ease-in-out;
-    }
-
-    #files-block.show {
-      width: 200px;
-    }
-
-    .files-menu {
-      margin-right: 5px;
-      background: #224;
-    }
-
-    .files-menu>button {
-      background: #224;
-      color: #fff;
-      padding: 5px 10px;
-      border: none;
-      outline: none;
-      cursor: pointer;
-      border-radius: 0;
-      margin-left: 0;
-    }
-
-    .files-menu>button:hover {
-      background: #55a;
-    }
-
-    #docs-panel {
-      position: absolute;
-      z-index: 990;
-      background: #448;
-      box-shadow: rgba(0, 0, 0, 0.3) 3px 3px 10px 10px;
-      height: 800px;
-      width: 800px;
-      max-width: 100%;
-      top: -1050px;
-      left: 50%;
-      box-sizing: border-box;
-      padding: 10px;
-      transform: translateX(-50%);
-      transition: top 300ms ease-in-out;
-    }
-
-    #docs-panel.show {
-      top: 0px;
-    }
-
-    #docs-panel i {
-      font-size: 11pt;
-      font-weight: 100;
-    }
-
-    #docs-panel .close {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      font-size: 24pt;
-      cursor: pointer;
-    }
-
-    #docs-panel .close:hover {
-      color: #fc0;
-    }
-
-    #library-panel {
-      position: absolute;
-      z-index: 990;
-      background: #448;
-      box-shadow: rgba(0, 0, 0, 0.3) 3px 3px 10px 10px;
-      height: 100vh;
-      width: 800px;
-      top: 0;
-      right: -850px;
-      box-sizing: border-box;
-      padding: 10px;
-      transition: right 300ms ease-in-out;
-    }
-
-    #library-panel.show {
-      right: 0;
-    }
-
-    #library-panel .close {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      font-size: 24pt;
-      cursor: pointer;
-    }
-
-    #library-panel .close:hover {
-      color: #fc0;
-    }
-
-    #file-toggle {
-      color: #224;
-      display: inline;
-      cursor: pointer;
-      font-size: 16pt;
-    }
-
-    #file-toggle:hover {
-      color: #fc0;
-    }
-  </style>
+  <link rel="stylesheet" href="./style.css" />
   <script type="text/javascript" src="./render.js"></script>
   <script type="text/javascript" src="./editor.js"></script>
   <script type="text/javascript" src="./manager.js"></script>
@@ -347,10 +10,11 @@
 </head>
 
 <body>
-  <div class="main">
+  <div class="main" onmouseup="endResize()" onmousemove="resizeCodePanel(event)">
     <div id="canvas-container"></div>
     <div id="code-container">
       <div id="code-toggle" onclick="toggleCode()">&#9654;</div>
+      <div class="resizer" onmousedown="startResize(event)"></div>
       <div style="margin-bottom: 5px;">
         <div id="file-toggle" onclick="toggleFiles()">&raquo;</div>
         <button onclick="saveRun()" style="font-weight: bold; font-size: 12pt;">SAVE/RUN</button>
@@ -378,7 +42,8 @@
       <div id="library-panel">
         <div class="close" onclick="showLibrary(false)">&times;</div>
         Library
-        <ul id="library-list" onclick="loadGame(event)">
+        <button onclick="showUploadGame()">UPLOAD...</button>
+        <ul id="library-list" onclick="loadGame(event.target)">
         </ul>
       </div>
       <div id="docs-panel">
@@ -410,35 +75,50 @@
             <i>Load a sound from a url, returns the audio object</i>
           </li>
           <li>
-            Adding Files: 
+            Adding Files:
             <i>Additional code files must all define classes and return the class definition</i>
           </li>
         </ul>
       </div>
-      <div id="image-loader">
-        <h3>Load Image</h3>
-        <div>
-          Image Name
-          <input id="image-name" />
-        </div>
-        <div id="local-section">
-          Image Filepath
-          <input id="image-filepath" type="file" onchange="readImageFile(event)" />
-        </div>
-        <div>
-          <button onclick="doLoadImage()">OK</button>
-          <button onclick="cancelLoadImage()">CANCEL</button>
-        </div>
+    </div>
+    <div id="image-loader">
+      <h3>Load Image</h3>
+      <div>
+        Image Name
+        <input id="image-name" />
+      </div>
+      <div id="local-section">
+        Image Filepath
+        <input id="image-filepath" type="file" onchange="readImageFile(event)" />
+      </div>
+      <div>
+        <button onclick="doLoadImage()">OK</button>
+        <button onclick="cancelLoadImage()">CANCEL</button>
+      </div>
+    </div>
+    <div id="library-loader">
+      <h3>Upload Game</h3>
+      <div>
+        Name
+        <input id="game-name" />
+      </div>
+      <div>
+        Description
+        <textarea id="game-description"></textarea>
+      </div>
+      <div>
+        <button onclick="uploadGame()">UPLOAD</button>
+        <button onclick="cancelUploadGame()">CANCEL</button>
       </div>
     </div>
   </div>
   <!-- The core Firebase JS SDK is always required and must be listed first -->
   <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-app.js"></script>
-  
+
   <!-- TODO: Add SDKs for Firebase products that you want to use
        https://firebase.google.com/docs/web/setup#available-libraries -->
-<script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-firestore.js"></script>
-  
+  <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-firestore.js"></script>
+
   <script>
     // Your web app's Firebase configuration
     var firebaseConfig = {

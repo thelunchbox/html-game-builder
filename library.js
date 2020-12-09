@@ -16,20 +16,42 @@ async function showLibrary(show) {
 
 async function getGames() {
   const results = await db.collection('games').get();
-  
+
   const gamesHtml = [];
   results.forEach(record => {
     const { id, data } = record;
-    const { name, description, code, screenshot } = data();
+    const code = record.get('code');
+    const screenshot = record.get('screenshot');
+    const name = record.get('name');
+    const description = record.get('description');
     gamesHtml.push(`<li id="game-${id}" data-code="${code}">
         <img src="${screenshot}" />
-        <b>${name}</b>${description}
+        <div>
+          <b>${name}</b>
+          <i>${description}</i>
+        </div>
       </li>`);
   });
 
   return gamesHtml.join('\n');
 }
 
-function loadGame(event) {
-  console.log(event);
+async function saveGame(game) {
+  try {
+    await db.collection('games').add(game);
+    showLibrary(true);
+  } catch (ex) {
+    alert(`Could not upload game: ${e.message}`);
+  }
+}
+
+function loadGame(element) {
+  const code = element.getAttribute('data-code');
+  if (code) {
+    finishImport(code);
+    showLibrary(false);
+  } else {
+    if (element.parentElement != document.body)
+      loadGame(element.parentElement);
+  }
 }
