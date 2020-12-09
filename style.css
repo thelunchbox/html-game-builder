@@ -51,15 +51,32 @@ canvas.main {
 
 #code-container textarea {
   box-sizing: border-box;
-  height: calc(100vh - 77px);
+  height: calc(100vh - 78px);
   width: 100%;
   background-color: #224;
   color: #ffc;
   outline: none;
   border: none;
-  padding-left: 5px;
+  padding-left: 40px;
   user-select: unset;
   resize: none;
+}
+
+#code-container .line-numbers {
+  position: absolute;
+  left: 0;
+  top: 28px;
+  box-sizing: border-box;
+  padding-top: 2px;
+  font-family: monospace;
+  font-weight: 400;
+  font-size: 13.33333px;
+  text-align: right;
+  height: calc(100vh - 78px);
+  width: 25px;
+  background-color: #224;
+  color: #77a;
+  overflow: hidden;
 }
 
 #code-container span {
@@ -74,8 +91,9 @@ canvas.main {
 #code-block {
   height: 100%;
   width: 100%;
-  overflow-y: auto;
+  overflow: hidden;
   padding-right: 6px;
+  position: relative;
 }
 
 .hidden {
@@ -133,9 +151,9 @@ button:hover {
   z-index: 999;
   background: #77a;
   box-shadow: rgba(0, 0, 0, 0.3) 3px 3px 10px 10px;
-  height: 350px;
+  height: 450px;
   width: 500px;
-  top: -450px;
+  top: -550px;
   left: 50%;
   box-sizing: border-box;
   padding: 10px;
@@ -390,6 +408,7 @@ ul>li {
 
 #library-list>li img {
   height: 60px;
+  width: calc(60px * 16/9);
   margin-right: 15px;
   background-color: #000;
 }
@@ -403,4 +422,59 @@ ul>li {
 
 #file-toggle:hover {
   color: #fc0;
+}
+
+button#menu {
+  position: relative;
+}
+
+button#menu > .menu {
+  background: #448;
+  max-height: 0;
+  position: absolute;
+  top: 26px;
+  left: -2px;
+  width: 160px;
+  z-index: 9999;
+  overflow: hidden;
+  text-align: left;
+  border-radius: 0px 2px 5px 5px;
+}
+
+button#menu > .menu > div {
+  padding: 4px;
+  font-size: 11pt;
+  cursor: pointer;
+}
+
+button#menu > .menu > div.text {
+  font-style: italic;
+  font-size: 10pt;
+  color: #77a;
+  cursor: text;
+  user-select: unset;
+}
+
+button#menu > .menu > div.text:hover {
+  background-color: inherit;
+}
+
+button#menu > .menu > hr {
+  margin: 0;
+  border-color: #77a;
+}
+
+button#menu > .menu > div:hover {
+  background-color: #77a;
+}
+
+button#menu:focus > .menu {
+  max-height: 100vh;
+  transition: max-height 300ms ease-in-out;
+  box-shadow: rgba(0, 0, 0, 0.3) 3px 3px 10px 10px;
+  border: solid 2px #224;
+}
+
+.menu > button {
+  display: block;
 }

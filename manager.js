@@ -16,6 +16,17 @@ function saveFileState(files) {
   window.localStorage.setItem('all-files', JSON.stringify(files));
 }
 
+function initializeMenu() {
+  const menus = Array.from(document.querySelectorAll('.menu'));
+  menus.forEach(menu => {
+    Array.from(menu.children).forEach(item => {
+      item.addEventListener('click', () => {
+        menu.parentElement.blur();
+      });
+    });
+  });
+}
+
 function saveCurrentTab() {
   const codeEditor = document.querySelector('#code-editor');
   const currentSelectedTab = openTabs.find(t => t.active);
@@ -211,19 +222,28 @@ function showUploadGame() {
 
 function uploadGame() {
   const name = document.querySelector('#game-name').value;
+  const author = document.querySelector('#game-author').value;
   const description = document.querySelector('#game-description').value;
   const code = exportGame(true);
-  const screenshot = document.querySelector('canvas').toDataURL();
+  const canvas = document.querySelector('canvas');
+  const ctx = canvas.getContext('2d');
+  let screenshot = '';
+  try {
+    screenshot = canvas.toDataURL();
+  } catch (e) { }
   if (!name) return alert('Name cannot be blank!');
+  if (!author) return alert('Author cannot be blank!');
   if (!description) return alert('Description cannot be blank!');
   if (!code) return alert('Your code was not exported properly!');
 
-  saveGame({ name, description, code, screenshot });
+  saveGame({ name, author, description, code, screenshot });
+  // console.log({ name, author, description, code, screenshot });
   cancelUploadGame();
 }
 
 function cancelUploadGame() {
   document.getElementById('game-name').value = null;
+  document.querySelector('#game-author').value = null;
   document.getElementById('game-description').value = null;
   document.getElementById('library-loader').classList.remove('show');
 }

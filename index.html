@@ -18,12 +18,19 @@
       <div style="margin-bottom: 5px;">
         <div id="file-toggle" onclick="toggleFiles()">&raquo;</div>
         <button onclick="saveRun()" style="font-weight: bold; font-size: 12pt;">SAVE/RUN</button>
-        <button onclick="exportGame()">EXPORT</button>
-        <button onclick="importGame()">IMPORT</button>
-        <button onclick="newGame()">CLEAR ALL</button>
-        <button onclick="loadImage()">LOAD IMAGE</button>
-        <button onclick="showLibrary(true)">LIBRARY</button>
-        <button onclick="showDocs(true)">HELP</button>
+        <button id="menu">
+          MENU &#9663;
+          <div class="menu">
+            <div onclick="exportGame()">EXPORT GAME</div>
+            <div onclick="importGame()">IMPORT GAME</div>
+            <div onclick="newGame()">CLEAR ALL</div>
+            <div onclick="loadImage()">LOAD IMAGE</div>
+            <div onclick="showLibrary(true)">GAME LIBRARY</div>
+            <div onclick="showDocs(true)">HELP</div>
+            <hr />
+            <div class="text">v3.1.0</div>
+          </div>
+        </button>
       </div>
       <div class="editor-area">
         <div id="files-block">
@@ -36,7 +43,9 @@
         </div>
         <div id="code-block">
           <div class="tabs"></div>
-          <textarea onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="code-editor"></textarea>
+          <div class="line-numbers"></div>
+          <textarea onscroll="editorScrolled(event)" onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="code-editor">
+          </textarea>
         </div>
       </div>
       <div id="library-panel">
@@ -48,7 +57,7 @@
       </div>
       <div id="docs-panel">
         <div class="close" onclick="showDocs(false)">&times;</div>
-        HTML Game Builder <i>v3.0.0</i>
+        HTML Game Builder
         <ul>
           <li>
             <span>function setup(game)</span>
@@ -103,6 +112,10 @@
         <input id="game-name" />
       </div>
       <div>
+        Author
+        <input id="game-author" />
+      </div>
+      <div>
         Description
         <textarea id="game-description"></textarea>
       </div>
@@ -140,6 +153,8 @@
     restoreImages();
     initializeTabs();
     initializeFiles();
+    initializeEditor();
+    initializeMenu();
     initializeDb();
     loadExternals();
     toggleCode(true);

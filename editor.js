@@ -219,3 +219,14 @@ async function editorKeydown(e) {
   }
   e.stopPropagation();
 }
+
+function initializeEditor() {
+  const lineNumbers = document.querySelector('.line-numbers');
+  lineNumbers.innerHTML = new Array(9999).fill(0).map((_, i) => {
+    return `<div>${i + 1}</div>`;
+  }).join('\n');
+}
+
+function editorScrolled(e) {
+  document.querySelector('.line-numbers').scrollTop = e.target.scrollTop;
+}

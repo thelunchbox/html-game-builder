@@ -22,12 +22,14 @@ async function getGames() {
     const { id, data } = record;
     const code = record.get('code');
     const screenshot = record.get('screenshot');
+    const author = record.get('author');
     const name = record.get('name');
     const description = record.get('description');
     gamesHtml.push(`<li id="game-${id}" data-code="${code}">
         <img src="${screenshot}" />
         <div>
           <b>${name}</b>
+          <b>by ${author}</b>
           <i>${description}</i>
         </div>
       </li>`);
