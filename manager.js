@@ -43,7 +43,7 @@ function download(data, filename, type) {
     a.download = filename;
     document.body.appendChild(a);
     a.click();
-    setTimeout(function () {
+    setTimeout(function() {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     }, 0);
@@ -58,7 +58,7 @@ function readSingleFile(e) {
     return;
   }
   var reader = new FileReader();
-  reader.onload = function (e) {
+  reader.onload = function(e) {
     var contents = e.target.result;
     finishImport(contents);
   };
@@ -87,6 +87,7 @@ function finishImport(content) {
       allFiles.push(key.substr(0, key.length - 5));
     }
   });
+  saveFileState(allFiles);
   initializeFiles();
   initializeTabs();
   loadExternals();
@@ -125,10 +126,10 @@ function getImages() {
   return Object.entries(_images).map(([name, img]) => ({ name, src: img.src }));
 }
 
-function exportGame() {
+function exportGame(internal = false) {
   // THIS IS NOT WORKING...
   saveCurrentTab();
-  const filename = prompt('name your file', 'game');
+  const filename = internal ? 'x' : prompt('name your file', 'game');
   if (!filename) return;
   const content = {
     ...allFiles.reduce((res, file) => ({
@@ -139,7 +140,8 @@ function exportGame() {
   };
 
   const text = btoa(JSON.stringify(content));
-  download(text, filename + '.gm', 'text/plain');
+  if (!internal) download(text, filename + '.gm', 'text/plain');
+  return text;
 }
 
 function newGame() {
@@ -157,7 +159,7 @@ function newGame() {
     window.localStorage.clear();
     const externalScripts = Array.from(document.querySelectorAll('script[id*="ext-"'));
     externalScripts.forEach(s => document.body.removeChild(s));
-    
+
     initializeTabs();
     initializeFiles();
     document.querySelector('#code-editor').value = '';
@@ -176,7 +178,7 @@ function readImageFile(e) {
     return;
   }
   var reader = new FileReader();
-  reader.onload = function (e) {
+  reader.onload = function(e) {
     var contents = e.target.result;
     currentImage = contents;
   };
@@ -203,6 +205,29 @@ function cancelLoadImage() {
   document.getElementById('image-loader').classList.remove('show');
 }
 
+function showUploadGame() {
+  document.getElementById('library-loader').classList.add('show');
+}
+
+function uploadGame() {
+  const name = document.querySelector('#game-name').value;
+  const description = document.querySelector('#game-description').value;
+  const code = exportGame(true);
+  const screenshot = document.querySelector('canvas').toDataURL();
+  if (!name) return alert('Name cannot be blank!');
+  if (!description) return alert('Description cannot be blank!');
+  if (!code) return alert('Your code was not exported properly!');
+
+  saveGame({ name, description, code, screenshot });
+  cancelUploadGame();
+}
+
+function cancelUploadGame() {
+  document.getElementById('game-name').value = null;
+  document.getElementById('game-description').value = null;
+  document.getElementById('library-loader').classList.remove('show');
+}
+
 function showDocs(show) {
   const docs = document.querySelector('#docs-panel');
   if (show) {
@@ -212,7 +237,26 @@ function showDocs(show) {
   }
 }
 
+let resizing = false;
 let showCode = true;
+
+function startResize(event) {
+  resizing = true;
+}
+
+function resizeCodePanel({ pageX }) {
+  if (!resizing) {
+    return;
+  }
+  const canvasContainer = document.querySelector('#canvas-container');
+  const codeContainer = document.querySelector('#code-container');
+  canvasContainer.style.width = pageX;
+  codeContainer.style.width = window.innerWidth - pageX;
+}
+
+function endResize(e) {
+  resizing = false;
+}
 
 function toggleCode(override) {
   if (override !== undefined) showCode = override;
@@ -220,6 +264,8 @@ function toggleCode(override) {
   const canvasContainer = document.querySelector('#canvas-container');
   const codeContainer = document.querySelector('#code-container');
   const codeToggle = document.querySelector('#code-toggle');
+  canvasContainer.style.transition = 'width 250ms ease-in-out';
+  codeContainer.style.transition = 'width 250ms ease-in-out';
   if (showCode) {
     canvasContainer.style.width = 800;
     codeContainer.style.width = window.innerWidth - 800;
@@ -231,6 +277,10 @@ function toggleCode(override) {
     codeToggle.classList.add('closed');
     codeToggle.innerHTML = '&#9664;';
   }
+  setTimeout(() => {
+    canvasContainer.style.transition = '';
+    codeContainer.style.transition = '';
+  }, 250);
 }
 
 let showFiles = false;
