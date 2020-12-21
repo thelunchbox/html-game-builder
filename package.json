@@ -4,6 +4,8 @@
   "description": "an html browser-based game building teaching tool",
   "main": "start.js",
   "scripts": {
+    "package": "node tools/package.js",
+    "unpackage": "node tools/unpackage.js",
     "start": "node start.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
