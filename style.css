@@ -425,11 +425,11 @@ ul>li {
   color: #fc0;
 }
 
-button#menu {
+button.menu-button {
   position: relative;
 }
 
-button#menu > .menu {
+button.menu-button > .menu {
   background: #448;
   max-height: 0;
   position: absolute;
@@ -442,13 +442,13 @@ button#menu > .menu {
   border-radius: 0px 2px 5px 5px;
 }
 
-button#menu > .menu > div {
+button.menu-button > .menu > div {
   padding: 4px;
   font-size: 11pt;
   cursor: pointer;
 }
 
-button#menu > .menu > div.text {
+button.menu-button > .menu > div.text {
   font-style: italic;
   font-size: 10pt;
   color: #77a;
@@ -456,20 +456,20 @@ button#menu > .menu > div.text {
   user-select: unset;
 }
 
-button#menu > .menu > div.text:hover {
+button.menu-button > .menu > div.text:hover {
   background-color: inherit;
 }
 
-button#menu > .menu > hr {
+button.menu-button > .menu > hr {
   margin: 0;
   border-color: #77a;
 }
 
-button#menu > .menu > div:hover {
+button.menu-button > .menu > div:hover {
   background-color: #77a;
 }
 
-button#menu:focus > .menu {
+button.menu-button:focus > .menu {
   max-height: 100vh;
   transition: max-height 300ms ease-in-out;
   box-shadow: rgba(0, 0, 0, 0.3) 3px 3px 10px 10px;

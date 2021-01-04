@@ -76,6 +76,12 @@ function readSingleFile(e) {
   reader.readAsText(file);
 }
 
+async function loadTutorial(step) {
+  const response = await fetch(`./samples/asteroids/asteroids-${step}.gm`);
+  const contents = await response.text();
+  finishImport(contents);
+}
+
 function importGame() {
   filePicker = document.createElement('input');
   filePicker.type = 'file';
