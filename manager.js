@@ -361,6 +361,15 @@ function createFile(file, container) {
     [, file] = file.split('/');
   }
   const suffix = file.endsWith('.js') ? '' : '.js';
+  let className = file.endsWith('.js') ? file.substr(0, file.length - 3) : file;
+  className = className[0].toUpperCase() + className.substr(1);
+  if (!LOCKED_FILES.includes(file)) {
+    localStorage.setItem(
+      file.replace(/\W/g, '_') + '-code',
+      `class ${className} {\n  \n}\n\nreturn ${className};`
+    );
+  }
+
   el.innerText = `${file}${suffix}`;
   el.setAttribute('id', file.replace(/\W/g, '_') + '-file');
   container.appendChild(el);
