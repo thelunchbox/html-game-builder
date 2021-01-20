@@ -98,7 +98,7 @@ function update() {
         delete _keys[key];
       }
     });
-  } catch (ex) {}
+  } catch (ex) { throw ex; }
   window.setTimeout(update, 30);
 }
 
@@ -108,7 +108,7 @@ function draw() {
     const context = canvas.getContext('2d');
     context.clearRect(0, 0, canvas.width, canvas.height);
     if (drawFunction) drawFunction(_game, _images, _frame, context, canvas);
-  } catch (ex) {}
+  } catch (ex) { throw ex; }
 
   window.requestAnimationFrame(draw);
 }
