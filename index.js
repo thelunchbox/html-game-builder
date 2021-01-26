@@ -126,7 +126,7 @@ function update() {
         delete _keys[key];
       }
     });
-  } catch (ex) { throw ex; }
+  } catch (ex) { console.error(ex); }
   window.setTimeout(update, 30);
 }
 
@@ -138,7 +138,7 @@ function draw() {
       context.clearRect(0, 0, canvas.width, canvas.height);
       if (drawFunction) drawFunction(_game, _images, _frame, context, canvas);
     }
-  } catch (ex) { throw ex; }
+  } catch (ex) { console.error(ex); }
 
   window.requestAnimationFrame(draw);
 }
