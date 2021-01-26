@@ -406,30 +406,6 @@ function createOrShowTab(file) {
   selectTab(targetTab);
 }
 
-function addExternal() {
-  let resource = prompt('location of external library');
-  if (!resource) return;
-  const id = `ext-${Math.floor(Math.random() * 10000000)}`;
-  const script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.onload = () => {
-    const [name] = resource.split('/').reverse();
-    const filesContainer = document.querySelector('#files-list');
-    const file = `${id}/${name}`;
-    createFile(file, filesContainer);
-    window.localStorage.setItem(`${file}-code`, resource);
-    allFiles.push(file);
-    saveFileState(allFiles);
-  };
-  script.onerror = e => {
-    alert(`Could not load external library ${resource}`);
-  }
-  script.src = resource;
-  script.id = id;
-
-  document.body.appendChild(script);
-}
-
 function addFile() {
   let newFile = prompt('name for new file');
   if (!newFile) return;
