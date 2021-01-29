@@ -28,7 +28,7 @@
             <div onclick="showLibrary(true)">GAME LIBRARY</div>
             <div onclick="showDocs(true)">HELP</div>
             <hr />
-            <div class="text">v3.3.1</div>
+            <div class="text">v4.0.0</div>
           </div>
         </button>
         <button class="menu-button">
@@ -57,7 +57,6 @@
           <div class="files-menu">
             <button onclick="addFile()">＋</button>
             <button onclick="deleteFile()">－</button>
-            <button onclick="addExternal()">	🔗</button>
           </div>
           <div id="files-list"></div>
         </div>
@@ -105,7 +104,10 @@
           </li>
           <li>
             Adding Files:
-            <i>Additional code files must all define classes and return the class definition</i>
+            <i>Additional code files must return something</i>
+            <i>In order to use the additional code, use the require function</i>
+            <span>require(file)</span>
+            <i>loads in the code from the file and returns the appropriate value</i>
           </li>
         </ul>
       </div>

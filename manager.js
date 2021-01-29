@@ -363,12 +363,12 @@ function createFile(file, container) {
   const suffix = file.endsWith('.js') ? '' : '.js';
   let className = file.endsWith('.js') ? file.substr(0, file.length - 3) : file;
   className = className[0].toUpperCase() + className.substr(1);
-  if (!LOCKED_FILES.includes(file)) {
-    localStorage.setItem(
-      file.replace(/\W/g, '_') + '-code',
-      `class ${className} {\n  \n}\n\nreturn ${className};`
-    );
-  }
+  // if (!LOCKED_FILES.includes(file)) {
+  //   localStorage.setItem(
+  //     file.replace(/\W/g, '_') + '-code',
+  //     `class ${className} {\n  \n}\n\nreturn ${className};`
+  //   );
+  // }
 
   el.innerText = `${file}${suffix}`;
   el.setAttribute('id', file.replace(/\W/g, '_') + '-file');
@@ -404,30 +404,6 @@ function createOrShowTab(file) {
     saveTabState(openTabs);
   }
   selectTab(targetTab);
-}
-
-function addExternal() {
-  let resource = prompt('location of external library');
-  if (!resource) return;
-  const id = `ext-${Math.floor(Math.random() * 10000000)}`;
-  const script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.onload = () => {
-    const [name] = resource.split('/').reverse();
-    const filesContainer = document.querySelector('#files-list');
-    const file = `${id}/${name}`;
-    createFile(file, filesContainer);
-    window.localStorage.setItem(`${file}-code`, resource);
-    allFiles.push(file);
-    saveFileState(allFiles);
-  };
-  script.onerror = e => {
-    alert(`Could not load external library ${resource}`);
-  }
-  script.src = resource;
-  script.id = id;
-
-  document.body.appendChild(script);
 }
 
 function addFile() {
