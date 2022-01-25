@@ -26,7 +26,7 @@ const _scrollCanvas = {
   scrolling: () => _scrollCanvas.left || _scrollCanvas.right || _scrollCanvas.up || _scrollCanvas.down,
 };
 
-const SCROLL_SPEED = 1 / 3;
+const SCROLL_SPEED = 1 / 2;
 const GRID_SIZE = 64;
 const GRID_COLOR = '#555';
 const CURSOR_COLOR = '#0ff';
@@ -126,16 +126,25 @@ async function saveRun() {
   drawFunction = new Function('game', 'images', 'frame', 'context', 'canvas', window.localStorage.getItem('draw-code'));
 }
 
+function checkForScrolling(x, y) {
+  const canvas = document.querySelector('canvas');
+  const { height, width } = canvas.getBoundingClientRect();
+  const scaleH = canvas.height / height;
+  const gridScaled = GRID_SIZE / scaleH; // scaleW and scaleH _should_ be the same
+  
+  _scrollCanvas.left = _offset.x > 0 && x < gridScaled;
+  _scrollCanvas.right = x > width - gridScaled;
+  _scrollCanvas.up = y < gridScaled;
+  _scrollCanvas.down = _offset.y < 0 && y > height - gridScaled;
+  _cursor.hide = _scrollCanvas.scrolling();
+}
+
 function setupCanvasClickHandler() {
   const canvas = document.querySelector('canvas');
 
   canvas.addEventListener('mousedown', event => {
     const { x, y } = event;
     if (clickFunction) clickFunction(_game, { x, y });
-    
-    const gridStartX = Math.floor(_offset.x / GRID_SIZE) * GRID_SIZE;
-    const gridStartY = Math.floor(_offset.y / GRID_SIZE) * GRID_SIZE;
-    console.log('GRID START', gridStartX, gridStartY);
   });
 
   canvas.addEventListener('mousemove', event => {
@@ -143,20 +152,10 @@ function setupCanvasClickHandler() {
     const { height, width } = canvas.getBoundingClientRect();
     const scaleH = canvas.height / height;
     const scaleW = canvas.width / width;
-    const gridScaled = GRID_SIZE / scaleH; // scaleW and scaleH _should_ be the same
-    
-    _scrollCanvas.left = x < gridScaled;
-    _scrollCanvas.right = x > width - gridScaled;
-    _scrollCanvas.up = y < gridScaled;
-    _scrollCanvas.down = y > height - gridScaled;
-
-    if (!_scrollCanvas.scrolling()) {
-      const canvasX = x * scaleW;
-      const canvasY = y * scaleH;
-      _cursor = { x: canvasX, y: canvasY };
-    } else {
-      _cursor = null;
-    }
+    const canvasX = x * scaleW;
+    const canvasY = y * scaleH;
+    _cursor = { x: canvasX, y: canvasY, trueX: x, trueY: y };
+    checkForScrolling(x, y);
   });
 
   canvas.addEventListener('mouseout', event => {
@@ -176,6 +175,9 @@ function update() {
       else if (_scrollCanvas.right) _offset.x += scrollAmt;
       if (_scrollCanvas.up) _offset.y -= scrollAmt;
       else if (_scrollCanvas.down) _offset.y += scrollAmt;
+
+      // we may need to update whether or not we can still scroll
+      checkForScrolling(_cursor.trueX, _cursor.trueY);
     }
     if (updateFunction) updateFunction(_game, _frame, { ..._keys });
     _frame++;
@@ -224,7 +226,7 @@ function draw() {
           context.closePath();
         }
 
-        if (_cursor) {
+        if (_cursor && !_cursor.hide) {
           context.save();
           context.globalAlpha = 0.3;
           const { x, y } = _cursor;
