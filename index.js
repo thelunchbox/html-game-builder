@@ -139,7 +139,7 @@ function checkForScrolling(x, y) {
   _cursor.hide = _scrollCanvas.scrolling();
 }
 
-function setupCanvasClickHandler() {
+function setupCanvasEventHandlers() {
   const canvas = document.querySelector('canvas');
 
   canvas.addEventListener('mousedown', event => {
@@ -164,6 +164,10 @@ function setupCanvasClickHandler() {
     _scrollCanvas.up = false;
     _scrollCanvas.down = false;
     _cursor = null;
+  });
+
+  canvas.addEventListener('contextmenu', event => {
+    event.preventDefault();
   });
 }
 

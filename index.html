@@ -1,188 +1,213 @@
 <html>
+  <head>
+    <link rel="stylesheet" href="./style.css" />
+    <script type="text/javascript" src="./render.js"></script>
+    <script type="text/javascript" src="./editor.js"></script>
+    <script type="text/javascript" src="./manager.js"></script>
+    <script type="text/javascript" src="./library.js"></script>
+    <script type="text/javascript" src="./index.js"></script>
+  </head>
 
-<head>
-  <link rel="stylesheet" href="./style.css" />
-  <script type="text/javascript" src="./render.js"></script>
-  <script type="text/javascript" src="./editor.js"></script>
-  <script type="text/javascript" src="./manager.js"></script>
-  <script type="text/javascript" src="./library.js"></script>
-  <script type="text/javascript" src="./index.js"></script>
-</head>
-
-<body>
-  <div class="main" onmouseup="endResize()" onmousemove="resizeCodePanel(event)">
-    <div id="canvas-container"></div>
-    <div id="code-container">
-      <div id="code-toggle" onclick="toggleCode()">&#9654;</div>
-      <div class="resizer" onmousedown="startResize(event)"></div>
-      <div style="margin-bottom: 5px;">
-        <div id="file-toggle" onclick="toggleFiles()">&raquo;</div>
-        <button onclick="saveRun()" style="font-weight: bold; font-size: 12pt;">SAVE/RUN</button>
-        <button class="menu-button">
-          MENU &#9663;
-          <div class="menu">
-            <div onclick="exportGame()">EXPORT GAME</div>
-            <div onclick="importGame()">IMPORT GAME</div>
-            <div onclick="newGame()">CLEAR ALL</div>
-            <div onclick="loadImage()">LOAD IMAGE</div>
-            <div onclick="showLibrary(true)">GAME LIBRARY</div>
-            <div onclick="showDocs(true)">HELP</div>
-            <hr />
-            <div class="text">v4.0.0</div>
-          </div>
-        </button>
-        <button class="menu-button">
-          TUTORIAL &#9663;
-          <div class="menu">
-            <div onclick="loadTutorial('001')">Step 01</div>
-            <div onclick="loadTutorial('002')">Step 02</div>
-            <div onclick="loadTutorial('003')">Step 03</div>
-            <div onclick="loadTutorial('004')">Step 04</div>
-            <div onclick="loadTutorial('005')">Step 05</div>
-            <div onclick="loadTutorial('006')">Step 06</div>
-            <div onclick="loadTutorial('007')">Step 07</div>
-            <div onclick="loadTutorial('008')">Step 08</div>
-            <div onclick="loadTutorial('009')">Step 09</div>
-            <div onclick="loadTutorial('010')">Step 10</div>
-            <div onclick="loadTutorial('011')">Step 11</div>
-            <div onclick="loadTutorial('012')">Step 12</div>
-            <div onclick="loadTutorial('013')">Step 13</div>
-            <div onclick="loadTutorial('014')">Step 14</div>
-            <div onclick="loadTutorial('015')">Step 15</div>
-          </div>
-        </button>
-      </div>
-      <div class="editor-area">
-        <div id="files-block">
-          <div class="files-menu">
-            <button onclick="addFile()">＋</button>
-            <button onclick="deleteFile()">－</button>
-          </div>
-          <div id="files-list"></div>
+  <body>
+    <div
+      class="main"
+      onmouseup="endResize()"
+      onmousemove="resizeCodePanel(event)"
+    >
+      <div id="canvas-container"></div>
+      <div id="code-container">
+        <div id="code-toggle" onclick="toggleCode()">&#9654;</div>
+        <div class="resizer" onmousedown="startResize(event)"></div>
+        <div style="margin-bottom: 5px">
+          <div id="file-toggle" onclick="toggleFiles()">&raquo;</div>
+          <button
+            onclick="saveRun()"
+            style="font-weight: bold; font-size: 12pt"
+          >
+            SAVE/RUN
+          </button>
+          <button class="menu-button">
+            MENU &#9663;
+            <div class="menu">
+              <div onclick="exportGame()">EXPORT GAME</div>
+              <div onclick="importGame()">IMPORT GAME</div>
+              <div onclick="newGame()">CLEAR ALL</div>
+              <div onclick="loadImage()">LOAD IMAGE</div>
+              <div onclick="showLibrary(true)">GAME LIBRARY</div>
+              <div onclick="showDocs(true)">HELP</div>
+              <hr />
+              <div class="text">v4.0.0</div>
+            </div>
+          </button>
+          <button class="menu-button">
+            TUTORIAL &#9663;
+            <div class="menu">
+              <div onclick="loadTutorial('001')">Step 01</div>
+              <div onclick="loadTutorial('002')">Step 02</div>
+              <div onclick="loadTutorial('003')">Step 03</div>
+              <div onclick="loadTutorial('004')">Step 04</div>
+              <div onclick="loadTutorial('005')">Step 05</div>
+              <div onclick="loadTutorial('006')">Step 06</div>
+              <div onclick="loadTutorial('007')">Step 07</div>
+              <div onclick="loadTutorial('008')">Step 08</div>
+              <div onclick="loadTutorial('009')">Step 09</div>
+              <div onclick="loadTutorial('010')">Step 10</div>
+              <div onclick="loadTutorial('011')">Step 11</div>
+              <div onclick="loadTutorial('012')">Step 12</div>
+              <div onclick="loadTutorial('013')">Step 13</div>
+              <div onclick="loadTutorial('014')">Step 14</div>
+              <div onclick="loadTutorial('015')">Step 15</div>
+            </div>
+          </button>
         </div>
-        <div id="code-block">
-          <div class="tabs"></div>
-          <div class="line-numbers"></div>
-          <textarea spellcheck="false" onscroll="editorScrolled(event)" onkeydown="editorKeydown(event)" onkeyup="event.stopPropagation()" id="code-editor">
-          </textarea>
+        <div class="editor-area">
+          <div id="files-block">
+            <div class="files-menu">
+              <button onclick="addFile()">＋</button>
+              <button onclick="deleteFile()">－</button>
+            </div>
+            <div id="files-list"></div>
+          </div>
+          <div id="code-block">
+            <div class="tabs"></div>
+            <div class="line-numbers"></div>
+            <textarea
+              spellcheck="false"
+              onscroll="editorScrolled(event)"
+              onkeydown="editorKeydown(event)"
+              onkeyup="event.stopPropagation()"
+              id="code-editor"
+            >
+            </textarea>
+          </div>
+        </div>
+        <div id="library-panel">
+          <div class="close" onclick="showLibrary(false)">&times;</div>
+          Library
+          <button onclick="showUploadGame()">UPLOAD...</button>
+          <ul id="library-list" onclick="loadGame(event.target)"></ul>
+        </div>
+        <div id="docs-panel">
+          <div class="close" onclick="showDocs(false)">&times;</div>
+          HTML Game Builder
+          <ul>
+            <li>
+              <span>function setup(game)</span>
+              <i>called when your game launches</i>
+            </li>
+            <li>
+              <span>function update(game, frame, keys)</span>
+              <i>called every 30ms to run your game</i>
+            </li>
+            <li>
+              <span>function draw(game, images, frame, context, canvas)</span>
+              <i>called when your game needs to render, resets the canvas</i>
+            </li>
+            <li>
+              <span>function handleClick(game, event)</span>
+              <i>called whenever the canvas is clicked</i>
+            </li>
+            <li>
+              <span>addImage(url)</span>
+              <i>Load an image from a url, returns the image object</i>
+            </li>
+            <li>
+              <span>addSound(url)</span>
+              <i>Load a sound from a url, returns the audio object</i>
+            </li>
+            <li>
+              Adding Files:
+              <i>Additional code files must return something</i>
+              <i
+                >In order to use the additional code, use the require
+                function</i
+              >
+              <span>require(file)</span>
+              <i
+                >loads in the code from the file and returns the appropriate
+                value</i
+              >
+            </li>
+          </ul>
         </div>
       </div>
-      <div id="library-panel">
-        <div class="close" onclick="showLibrary(false)">&times;</div>
-        Library
-        <button onclick="showUploadGame()">UPLOAD...</button>
-        <ul id="library-list" onclick="loadGame(event.target)">
-        </ul>
+      <div id="image-loader">
+        <h3>Load Image</h3>
+        <div>
+          Image Name
+          <input id="image-name" />
+        </div>
+        <div id="local-section">
+          Image Filepath
+          <input
+            id="image-filepath"
+            type="file"
+            onchange="readImageFile(event)"
+          />
+        </div>
+        <div>
+          <button onclick="doLoadImage()">OK</button>
+          <button onclick="cancelLoadImage()">CANCEL</button>
+        </div>
       </div>
-      <div id="docs-panel">
-        <div class="close" onclick="showDocs(false)">&times;</div>
-        HTML Game Builder
-        <ul>
-          <li>
-            <span>function setup(game)</span>
-            <i>called when your game launches</i>
-          </li>
-          <li>
-            <span>function update(game, frame, keys)</span>
-            <i>called every 30ms to run your game</i>
-          </li>
-          <li>
-            <span>function draw(game, images, frame, context, canvas)</span>
-            <i>called when your game needs to render, resets the canvas</i>
-          </li>
-          <li>
-            <span>function handleClick(game, event)</span>
-            <i>called whenever the canvas is clicked</i>
-          </li>
-          <li>
-            <span>addImage(url)</span>
-            <i>Load an image from a url, returns the image object</i>
-          </li>
-          <li>
-            <span>addSound(url)</span>
-            <i>Load a sound from a url, returns the audio object</i>
-          </li>
-          <li>
-            Adding Files:
-            <i>Additional code files must return something</i>
-            <i>In order to use the additional code, use the require function</i>
-            <span>require(file)</span>
-            <i>loads in the code from the file and returns the appropriate value</i>
-          </li>
-        </ul>
+      <div id="library-loader">
+        <h3>Upload Game</h3>
+        <div>
+          Name
+          <input id="game-name" />
+        </div>
+        <div>
+          Author
+          <input id="game-author" />
+        </div>
+        <div>
+          Description
+          <textarea id="game-description"></textarea>
+        </div>
+        <div>
+          <button onclick="uploadGame()">UPLOAD</button>
+          <button onclick="cancelUploadGame()">CANCEL</button>
+        </div>
       </div>
     </div>
-    <div id="image-loader">
-      <h3>Load Image</h3>
-      <div>
-        Image Name
-        <input id="image-name" />
-      </div>
-      <div id="local-section">
-        Image Filepath
-        <input id="image-filepath" type="file" onchange="readImageFile(event)" />
-      </div>
-      <div>
-        <button onclick="doLoadImage()">OK</button>
-        <button onclick="cancelLoadImage()">CANCEL</button>
-      </div>
-    </div>
-    <div id="library-loader">
-      <h3>Upload Game</h3>
-      <div>
-        Name
-        <input id="game-name" />
-      </div>
-      <div>
-        Author
-        <input id="game-author" />
-      </div>
-      <div>
-        Description
-        <textarea id="game-description"></textarea>
-      </div>
-      <div>
-        <button onclick="uploadGame()">UPLOAD</button>
-        <button onclick="cancelUploadGame()">CANCEL</button>
-      </div>
-    </div>
-  </div>
-  <!-- The core Firebase JS SDK is always required and must be listed first -->
-  <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-app.js"></script>
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-app.js"></script>
 
-  <!-- TODO: Add SDKs for Firebase products that you want to use
+    <!-- TODO: Add SDKs for Firebase products that you want to use
        https://firebase.google.com/docs/web/setup#available-libraries -->
-  <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-firestore.js"></script>
 
-  <script>
-    // Your web app's Firebase configuration
-    var firebaseConfig = {
-      apiKey: "AIzaSyB2AONH0KskXRGqccS_8BmpYUTaI2L9vvk",
-      authDomain: "olive-hero-game-builder-21.firebaseapp.com",
-      projectId: "olive-hero-game-builder-21",
-      storageBucket: "olive-hero-game-builder-21.appspot.com",
-      messagingSenderId: "54990119298",
-      appId: "1:54990119298:web:843f5bf4faac2e65362f9b"
-    };
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    // https://firebase.google.com/docs/firestore/quickstart
-    const [, resizeCanvas] = makeCanvas(document.getElementById('canvas-container'), {
-      width: 1600,
-      height: 900
-    });
-    setupCanvasClickHandler();
-    restoreImages();
-    initializeTabs();
-    initializeFiles();
-    initializeEditor();
-    initializeMenu();
-    initializeDb();
-    loadExternals();
-    toggleCode(true);
-    toggleFiles(JSON.parse(window.localStorage.getItem('show-files')));
-    saveRun();
-  </script>
-</body>
-
+    <script>
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyB2AONH0KskXRGqccS_8BmpYUTaI2L9vvk",
+        authDomain: "olive-hero-game-builder-21.firebaseapp.com",
+        projectId: "olive-hero-game-builder-21",
+        storageBucket: "olive-hero-game-builder-21.appspot.com",
+        messagingSenderId: "54990119298",
+        appId: "1:54990119298:web:843f5bf4faac2e65362f9b",
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      // https://firebase.google.com/docs/firestore/quickstart
+      const [, resizeCanvas] = makeCanvas(
+        document.getElementById("canvas-container"),
+        {
+          width: 1600,
+          height: 896,
+        }
+      );
+      setupCanvasEventHandlers();
+      restoreImages();
+      initializeTabs();
+      initializeFiles();
+      initializeEditor();
+      initializeMenu();
+      initializeDb();
+      loadExternals();
+      toggleCode(true);
+      toggleFiles(JSON.parse(window.localStorage.getItem("show-files")));
+      saveRun();
+    </script>
+  </body>
 </html>

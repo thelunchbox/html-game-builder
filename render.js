@@ -1,5 +1,5 @@
 function makeCanvas (root, options = {}) {
-  const { width = 1600, height = 900 } = options;
+  const { width = 1600, height = 896 } = options;
   const canvas = document.createElement('canvas');
   canvas.classList.add('main');
   canvas.width = width;
